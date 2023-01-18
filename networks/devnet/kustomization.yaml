@@ -1,0 +1,7 @@
+namespace: devnet
+
+resources:
+  - ../../base/persistencecore
+  - ingress.yaml
+  - configmap.yaml
+  - ../../graph-node

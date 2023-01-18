@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: persistencecore
+data:
+  chain.id: core-1
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: firehose-node-config
+data:
+  sync_node.resolution_method: STATIC
+  sync_node.host: ''
+  sync_node.exposer_port: ''
+  sync_node.port_p2p: '26656'
+  sync_node.genesis_json_fetch_url: 'https://raw.githubusercontent.com/persistenceOne/networks/master/core-1/final_genesis.json'
+  snapshot_restore_url: 'https://tools.highstakes.ch/files/persistence/data_2023-01-11.tar.gz' # block height 9597501
+  seeds: 'fbf0aa94b512902a249b246ed5763b50df9c0543@seed.core.persistence.one:26656'
+  first_streamable_block: '9597600'
+  force_init: 'false'
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: graph-node-config
+data:
+  firehose_node.host: 'persistencecore-firehose-node.graph-core-1.svc.cluster.local'
+  firehose_node.port: '9030'
+  ipfs.host: 'ipfs-node.graph-core-1.svc.cluster.local'
+  ipfs.port: '5001'

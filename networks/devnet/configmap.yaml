@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: persistencecore
+data:
+  chain.id: persistencecore
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: firehose-node-config
+data:
+  sync_node.resolution_method: DYNAMIC
+  sync_node.host: 'persistencecore-genesis.devnet.svc.cluster.local'
+  sync_node.exposer_port: '8081'
+  sync_node.port_p2p: '26656'
+  sync_node.genesis_json_fetch_url: ''
+  snapshot_restore_url: ''
+  seeds: ''
+  # For buffer time to sync the node
+  first_streamable_block: '300'
+  force_init: 'true'
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: graph-node-config
+data:
+  firehose_node.host: 'persistencecore-firehose-node.devnet.svc.cluster.local'
+  firehose_node.port: '9030'
+  ipfs.host: 'ipfs-node.devnet.svc.cluster.local'
+  ipfs.port: '5001'

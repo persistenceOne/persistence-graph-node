@@ -1,0 +1,21 @@
+resources:
+  - firehose-node.yaml
+  - graph-node.yaml
+  - ipfs-node.yaml
+  # - hasura.yaml
+  - ipfs-persistent-volume.yaml
+  - firehose-persistent-volume.yaml
+
+generatorOptions:
+  disableNameSuffixHash: true
+
+configMapGenerator:
+  - name: config-graph
+    files:
+      - config-graph/firehose-node.json
+      - config-graph/firehose.yml
+      - config-graph/config.toml
+      - config-graph/config-graph-node.toml
+  - name: scripts-graph
+    files:
+      - scripts/init-firehose-node.sh

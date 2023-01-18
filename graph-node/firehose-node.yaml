@@ -1,0 +1,223 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: persistencecore-firehose-node
+  labels:
+    app.kubernetes.io/name: persistencecore-firehose-node
+spec:
+  clusterIP: None
+  ports:
+    - name: p2p
+      port: 26656
+      protocol: TCP
+      targetPort: 26656
+    - name: rpc
+      port: 26657
+      protocol: TCP
+      targetPort: 26657
+    - name: http
+      port: 8081
+      protocol: TCP
+      targetPort: 8081
+    - name: firehose
+      port: 9030
+      protocol: TCP
+      targetPort: 9030
+  selector:
+    app.kubernetes.io/name: persistencecore-firehose-node
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: persistencecore-firehose-node
+spec:
+  serviceName: persistencecore-firehose-node
+  replicas: 1
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: persistencecore
+      app.kubernetes.io/name: persistencecore-firehose-node
+  template:
+    metadata:
+      annotations:
+        quality: release
+        role: api-gateway
+        sla: high
+        tier: gateway
+      labels:
+        app.kubernetes.io/instance: persistencecore
+        app.kubernetes.io/type: persistencecore-firehose-node
+        app.kubernetes.io/name: persistencecore-firehose-node
+        app.kubernetes.io/version: '0.1'
+    spec:
+      initContainers:
+        - name: wait-for-genesis
+          image: registry.digitalocean.com/nevermore/persistence:v6.1.0-fh
+          imagePullPolicy: Always
+          env:
+            - name: GENESIS_NODE_DATA_RESOLUTION_METHOD
+              valueFrom:
+                configMapKeyRef:
+                  key: sync_node.resolution_method
+                  name: firehose-node-config
+            - name: GENESIS_HOST
+              valueFrom:
+                configMapKeyRef:
+                  key: sync_node.host
+                  name: firehose-node-config
+            - name: GENESIS_PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: sync_node.exposer_port
+                  name: firehose-node-config
+          command:
+            - bash
+            - "-c"
+            - |
+              # Do the following if the resolution method is dynamic else skip (we assume that in static configuration peer node is already up)
+              if [ "$GENESIS_NODE_DATA_RESOLUTION_METHOD" = "DYNAMIC" ]; then
+                while [ $(curl -sw '%{http_code}' http://$GENESIS_HOST:$GENESIS_PORT/node_id -o /dev/null) -ne 200 ]; do
+                  echo "Genesis validator does not seem to be ready. Waiting for it to start..."
+                  sleep 10;
+                done
+              fi
+              echo "Ready to start"
+              exit 0
+        - name: init-firehose-node
+          image: registry.digitalocean.com/nevermore/persistence:v6.1.0-fh
+          imagePullPolicy: Always
+          env:
+            - name: CHAIN_ID
+              valueFrom:
+                configMapKeyRef:
+                  key: chain.id
+                  name: persistencecore
+            - name: HOME_DIR
+              value: /persistencecore
+            - name: GENESIS_HOST
+              valueFrom:
+                configMapKeyRef:
+                  key: sync_node.host
+                  name: firehose-node-config
+            # We support 2 types of resolution methods: (dynamic, static), if the resolution method is dynamic then we fetch the node id
+            # on the fly from the exposer app exposed service on the specified port, otherwise it is required that the node id is 
+            # specified exactly as an environment variable
+            - name: GENESIS_NODE_DATA_RESOLUTION_METHOD
+              valueFrom:
+                configMapKeyRef:
+                  key: sync_node.resolution_method
+                  name: firehose-node-config
+            - name: GENESIS_EXPOSER_PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: sync_node.exposer_port
+                  name: firehose-node-config
+            # This URL is used to fetch the genesis json if the NODE_DATA_RESOLUTION_METHOD is static
+            - name: GENESIS_JSON_FETCH_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: sync_node.genesis_json_fetch_url
+                  name: firehose-node-config
+            - name: GENESIS_PORT_P2P
+              valueFrom:
+                configMapKeyRef:
+                  key: sync_node.port_p2p
+                  name: firehose-node-config
+            - name: STATE_RESTORE_SNAPSHOT_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: snapshot_restore_url
+                  name: firehose-node-config
+            - name: SEEDS
+              valueFrom:
+                configMapKeyRef:
+                  key: seeds
+                  name: firehose-node-config
+            - name: FIRST_STREAMABLE_BLOCK
+              valueFrom:
+                configMapKeyRef:
+                  key: first_streamable_block
+                  name: firehose-node-config
+            - name: FORCE_INIT
+              valueFrom:
+                configMapKeyRef:
+                  key: force_init
+                  name: firehose-node-config
+          command:
+            - bash
+            - "-c"
+            - |
+              bash /scripts/init-firehose-node.sh
+          resources:
+            limits:
+              cpu: "1"
+              memory: "1G"
+            requests:
+              cpu: "1"
+              memory: "1G"
+          volumeMounts:
+            - mountPath: /persistencecore
+              name: node-pv-storage
+            - mountPath: /config-graph
+              name: config-graph
+            - mountPath: /scripts
+              name: scripts-graph
+      containers:
+        - name: firehose-node
+          image: registry.digitalocean.com/nevermore/persistence:v6.1.0-fh
+          imagePullPolicy: Always
+          env:
+            - name: CHAIN_ID
+              valueFrom:
+                configMapKeyRef:
+                  key: chain.id
+                  name: persistencecore
+            - name: HOME_DIR
+              value: /persistencecore
+          command:
+            - bash
+            - "-c"
+            - |
+              echo "Installing firecosmos"
+              wget https://github.com/figment-networks/firehose-cosmos/releases/download/v0.6.0/firecosmos_linux_amd64 -O firecosmos
+              chmod +x firecosmos
+              mv firecosmos /usr/local/bin
+
+              echo "starting firehose with persistence core"
+              # sleep infinity
+              firecosmos start --config $HOME_DIR/config/firehose.yml --data-dir /fh-data
+          resources:
+            limits:
+              cpu: "2"
+              memory: "4G"
+            requests:
+              cpu: "1"
+              memory: "3G"
+          volumeMounts:
+            - mountPath: /persistencecore
+              name: node-pv-storage
+            - mountPath: /config-graph
+              name: config-graph
+            - mountPath: /fh-data
+              name: firehose-pv-storage
+      volumes:
+        - name: firehose-pv-storage
+          persistentVolumeClaim:
+            claimName: firehose-pv-claim
+        - name: config-graph
+          configMap:
+            name: config-graph
+        - name: scripts-graph
+          configMap:
+            name: scripts-graph
+  volumeClaimTemplates:
+  - metadata:
+      name: node-pv-storage
+    spec:
+      storageClassName: do-block-storage
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 30Gi
