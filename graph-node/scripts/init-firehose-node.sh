@@ -85,19 +85,10 @@ END
         curl $STATE_RESTORE_SNAPSHOT_URL -o $HOME_DIR/$FILENAME
 
         echo "=> Extracting snapshot"
-        cp $HOME_DIR/data/priv_validator_state.json $HOME/priv_validator_state_backup.json
-
         case "$FILENAME" in
             *.tar.lz4)
                 if ! command -v lz4 &> /dev/null; then
-                    case "$(uname -s)" in
-                        Linux)
-                            apt install -y lz4
-                            ;;
-                        Darwin)
-                            brew install lz4
-                            ;;
-                    esac
+                    apk add lz4
                 fi
 
                 lz4 -c -d $HOME_DIR/$FILENAME | tar -x -C $HOME_DIR
@@ -109,9 +100,6 @@ END
                 rm -rf $HOME_DIR/$FILENAME
                 ;;
         esac
-
-        mv $HOME_DIR/priv_validator_state_backup.json $HOME/data/priv_validator_state.json
-        rm $HOME_DIR/priv_validator_state_backup.json
     fi
 fi
 
