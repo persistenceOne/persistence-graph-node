@@ -54,7 +54,7 @@ spec:
     spec:
       initContainers:
         - name: wait-for-genesis
-          image: registry.digitalocean.com/nevermore/persistence:v6.1.0-fh
+          image: persistenceone/persistencecore:v7.0.0-fh
           imagePullPolicy: Always
           env:
             - name: GENESIS_NODE_DATA_RESOLUTION_METHOD
@@ -86,7 +86,7 @@ spec:
               echo "Ready to start"
               exit 0
         - name: init-firehose-node
-          image: registry.digitalocean.com/nevermore/persistence:v6.1.0-fh
+          image: persistenceone/persistencecore:v7.0.0-fh
           imagePullPolicy: Always
           env:
             - name: CHAIN_ID
@@ -152,11 +152,11 @@ spec:
               bash /scripts/init-firehose-node.sh
           resources:
             limits:
-              cpu: "1"
-              memory: "1G"
+              cpu: "0.25"
+              memory: "0.25G"
             requests:
-              cpu: "1"
-              memory: "1G"
+              cpu: "0.25"
+              memory: "0.25G"
           volumeMounts:
             - mountPath: /persistencecore
               name: node-pv-storage
@@ -166,7 +166,7 @@ spec:
               name: scripts-graph
       containers:
         - name: firehose-node
-          image: registry.digitalocean.com/nevermore/persistence:v6.1.0-fh
+          image: persistenceone/persistencecore:v7.0.0-fh
           imagePullPolicy: Always
           env:
             - name: CHAIN_ID
@@ -190,11 +190,11 @@ spec:
               firecosmos start --config $HOME_DIR/config/firehose.yml --data-dir /fh-data
           resources:
             limits:
-              cpu: "2"
-              memory: "4G"
+              cpu: "0.25"
+              memory: "0.25G"
             requests:
-              cpu: "1"
-              memory: "3G"
+              cpu: "0.25"
+              memory: "0.25G"
           volumeMounts:
             - mountPath: /persistencecore
               name: node-pv-storage
@@ -206,18 +206,21 @@ spec:
         - name: firehose-pv-storage
           persistentVolumeClaim:
             claimName: firehose-pv-claim
+        - name: node-pv-storage
+          persistentVolumeClaim:
+            claimName: node-pv-claim
         - name: config-graph
           configMap:
             name: config-graph
         - name: scripts-graph
           configMap:
             name: scripts-graph
-  volumeClaimTemplates:
-  - metadata:
-      name: node-pv-storage
-    spec:
-      storageClassName: do-block-storage
-      accessModes: [ "ReadWriteOnce" ]
-      resources:
-        requests:
-          storage: 30Gi
+  # volumeClaimTemplates:
+  # - metadata:
+  #     name: node-pv-storage
+  #   spec:
+  #     storageClassName: do-block-storage
+  #     accessModes: [ "ReadWriteOnce" ]
+  #     resources:
+  #       requests:
+  #         storage: 30Gi

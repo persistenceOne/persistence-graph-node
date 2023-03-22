@@ -24,10 +24,10 @@ data:
   #     - blockstore.db
   #     - ...
   #   - wasm
-  snapshot_restore_url: 'https://tendermint-snapshots.s3.ap-southeast-1.amazonaws.com/persistence/testnet/test.tar.gz'
-  seeds: 'b4237f8a7ca357d380ad119b76cbceec7e7e8a75@128.199.218.4:26656'
+  snapshot_restore_url: "https://snapshots.polkachu.com/testnet-snapshots/persistence/persistence_10640035.tar.lz4"
+  seeds: 'ade4d8bc8cbe014af6ebdf3cb7b1e9ad36f412c0@testnet-seeds.polkachu.com:15456'
   # For buffer time to sync the node
-  first_streamable_block: '9292200'
+  first_streamable_block: '10640100'
   force_init: 'false'
 
 ---
@@ -36,7 +36,8 @@ kind: ConfigMap
 metadata:
   name: graph-node-config
 data:
-  firehose_node.host: 'persistencecore-firehose-node.testnet.svc.cluster.local'
+  #host name format: <Service-namespace-podDNS>
+  firehose_node.host: 'persistencecore-firehose-node.graph-test-core-1.svc.cluster.local'
   firehose_node.port: '9030'
-  ipfs.host: 'ipfs-node.testnet.svc.cluster.local'
+  ipfs.host: 'ipfs-node.graph-test-core-1.svc.cluster.local'
   ipfs.port: '5001'
