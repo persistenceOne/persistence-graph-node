@@ -30,7 +30,7 @@ spec:
     spec:
       containers:
         - name: hasura
-          image: hasura/graphql-engine:v2.2.0
+          image: hasura/graphql-engine:v2.19.0
           ports:
             - containerPort: 8080
               protocol: TCP
@@ -39,8 +39,15 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: postgres-secret
-                  key: POSTGRES_FULL_URL
+                  key: POSTGRES_HASURA_URL
             - name: HASURA_GRAPHQL_ENABLE_CONSOLE
               value: 'true'
             - name: HASURA_GRAPHQL_DEV_MODE
               value: 'true'
+            - name: HASURA_GRAPHQL_ADMIN_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: HASURA_GRAPHQL_ADMIN_SECRET
+            - name: HASURA_GRAPHQL_UNAUTHORIZED_ROLE
+              value: api-user

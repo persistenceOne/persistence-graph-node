@@ -20,7 +20,7 @@ data:
   seeds: ''
   # For buffer time to sync the node
   first_streamable_block: '300'
-  force_init: 'true'
+  force_init: 'false'
 ---
 apiVersion: v1
 kind: ConfigMap
