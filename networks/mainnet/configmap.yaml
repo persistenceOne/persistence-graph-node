@@ -16,9 +16,9 @@ data:
   sync_node.exposer_port: ''
   sync_node.port_p2p: '26656'
   sync_node.genesis_json_fetch_url: 'https://raw.githubusercontent.com/persistenceOne/networks/master/core-1/final_genesis.json'
-  snapshot_restore_url: 'https://tools.highstakes.ch/files/persistence/data_2023-01-11.tar.gz' # block height 9597501
-  seeds: 'fbf0aa94b512902a249b246ed5763b50df9c0543@seed.core.persistence.one:26656'
-  first_streamable_block: '9597600'
+  snapshot_restore_url: 'https://files.audit.one/persistence%2Fsnapshot%2Fdata_height_10522614.tar.lz4'
+  seeds: 'e726816f42831689eab9378d5d577f1d06d25716@persistence-seed-2.allnodes.me:26656,e1b058e5cfa2b836ddaa496b10911da62dcf182e@persistence-seed-1.allnodes.me:26656,fbf0aa94b512902a249b246ed5763b50df9c0543@seed.core.persistence.one:26656'
+  first_streamable_block: '10522800'
   force_init: 'false'
 
 ---

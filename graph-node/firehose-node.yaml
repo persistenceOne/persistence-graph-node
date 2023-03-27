@@ -152,11 +152,11 @@ spec:
               bash /scripts/init-firehose-node.sh
           resources:
             limits:
-              cpu: "0.25"
-              memory: "0.25G"
+              cpu: "1"
+              memory: "1G"
             requests:
-              cpu: "0.25"
-              memory: "0.25G"
+              cpu: "1"
+              memory: "1G"
           volumeMounts:
             - mountPath: /persistencecore
               name: node-pv-storage
@@ -186,15 +186,15 @@ spec:
               mv firecosmos /usr/local/bin
 
               echo "starting firehose with persistence core"
-              # sleep infinity
+              #sleep infinity
               firecosmos start --config $HOME_DIR/config/firehose.yml --data-dir /fh-data
           resources:
             limits:
-              cpu: "0.25"
-              memory: "0.25G"
+              cpu: "2"
+              memory: "4G"
             requests:
-              cpu: "0.25"
-              memory: "0.25G"
+              cpu: "2"
+              memory: "3G"
           volumeMounts:
             - mountPath: /persistencecore
               name: node-pv-storage

@@ -8,9 +8,9 @@ spec:
   tls:
     - secretName: cloudflare-tls
       hosts:
-        - graph.mainnet.persistence #graph.testnet.dexter.zone
+        - graph.mainnet.persistence.one
   rules:
-    - host: graph.mainnet.persistence #graph.testnet.dexter.zone
+    - host: graph.mainnet.persistence.one
       http:
         paths:
           - path: /

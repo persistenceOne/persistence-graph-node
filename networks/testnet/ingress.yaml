@@ -6,11 +6,11 @@ metadata:
     nginx.ingress.kubernetes.io/ssl-redirect: "false"
 spec:
   tls:
-    - secretName: cloudflare-tls
+    - secretName: cloudflare-tls-graph-testnet
       hosts:
-        - graph.testnet.persistence #graph.testnet.dexter.zone
+        - graph.testnet.persistence.one
   rules:
-    - host: graph.testnet.persistence #graph.testnet.dexter.zone
+    - host: graph.testnet.persistence.one
       http:
         paths:
           - path: /

@@ -93,6 +93,7 @@ END
                 fi
                 echo "=> Extracting snapshot..."
                 lz4 -c -d $HOME_DIR/$FILENAME | tar -x -C $HOME_DIR
+                rm -rf $HOME_DIR/wasm/wasm/cache/modules
                 rm -rf $HOME_DIR/$FILENAME
                 ;;
 

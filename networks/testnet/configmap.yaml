@@ -24,10 +24,10 @@ data:
   #     - blockstore.db
   #     - ...
   #   - wasm
-  snapshot_restore_url: "https://snapshots.polkachu.com/testnet-snapshots/persistence/persistence_10640035.tar.lz4"
-  seeds: 'ade4d8bc8cbe014af6ebdf3cb7b1e9ad36f412c0@testnet-seeds.polkachu.com:15456'
+  snapshot_restore_url: "https://files.audit.one/persistence%2Fsnapshot%2Ftestnet_10192378.tar.lz4"
+  seeds: 'b4237f8a7ca357d380ad119b76cbceec7e7e8a75@seed.testnet.persistence.one:26656'
   # For buffer time to sync the node
-  first_streamable_block: '10640100'
+  first_streamable_block: '10192450'
   force_init: 'false'
 
 ---

@@ -1,6 +1,6 @@
 namespace: graph-test-core-1
 
 resources:
-#  - ingress.yaml
+  - ingress.yaml
   - ../../graph-node
   - configmap.yaml
