@@ -1,16 +1,16 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: ingress-core-mainnet-graph
+  name: ingress-graph-mainnet-persistence
   annotations:
     nginx.ingress.kubernetes.io/ssl-redirect: "false"
 spec:
   tls:
     - secretName: cloudflare-tls
       hosts:
-        - graph.core-1.dexter.zone
+        - graph.mainnet.persistence.one
   rules:
-    - host: graph.core-1.dexter.zone
+    - host: graph.mainnet.persistence.one
       http:
         paths:
           - path: /
@@ -20,29 +20,4 @@ spec:
                 name: persistencecore-graph-node
                 port:
                   number: 8000
-  ingressClassName: nginx
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: ingress-core-mainnet-hasura
-  annotations:
-    nginx.ingress.kubernetes.io/ssl-redirect: "false"
-    nginx.ingress.kubernetes.io/enable-cors: "true"
-spec:
-  tls:
-    - secretName: cloudflare-tls
-      hosts:
-        - api.core-1.dexter.zone
-  rules:
-    - host: api.core-1.dexter.zone
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: persistencecore-hasura
-                port:
-                  number: 8080
   ingressClassName: nginx

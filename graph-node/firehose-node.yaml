@@ -136,7 +136,7 @@ spec:
                 configMapKeyRef:
                   key: seeds
                   name: firehose-node-config
-            - name: FIRST_STREAMBLE_BLOCK
+            - name: FIRST_STREAMABLE_BLOCK
               valueFrom:
                 configMapKeyRef:
                   key: first_streamable_block
