@@ -136,7 +136,7 @@ spec:
                 configMapKeyRef:
                   key: seeds
                   name: firehose-node-config
-            - name: FIRST_STREAMABLE_BLOCK
+            - name: FIRST_STREAMBLE_BLOCK
               valueFrom:
                 configMapKeyRef:
                   key: first_streamable_block
@@ -152,11 +152,10 @@ spec:
             - |
               bash /scripts/init-firehose-node.sh
 
-              echo "Checking if firecosmos already installed.."
+              echo "Installing firecosmos if not already installed"
 
               # Install firecosmos if not already installed
               if [ ! -f /persistencecore/bin/firecosmos ]; then
-                echo "Installing firecosmos ..."
                 wget https://github.com/figment-networks/firehose-cosmos/releases/download/v0.6.0/firecosmos_linux_amd64 -O firecosmos
                 chmod +x firecosmos
                 mkdir -p /persistencecore/bin
@@ -188,6 +187,16 @@ spec:
                   name: persistencecore
             - name: HOME_DIR
               value: /persistencecore
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  key: aws_access_key_id
+                  name: firehose-node-aws-credentials
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: aws_secret_access_key
+                  name: firehose-node-aws-credentials
           # command:
           #   - /persistencecore/bin/firecosmos
           # args:
@@ -206,6 +215,7 @@ spec:
             - bash
             - "-c"
             - |
+              sleep infinity
               exec /persistencecore/bin/firecosmos start --config /persistencecore/config/firehose.yml --data-dir /fh-data 
           resources:
             limits:
@@ -225,9 +235,6 @@ spec:
         - name: firehose-pv-storage
           persistentVolumeClaim:
             claimName: firehose-pv-claim
-        - name: node-pv-storage
-          persistentVolumeClaim:
-            claimName: node-pv-claim
         - name: config-graph
           configMap:
             name: config-graph
@@ -242,4 +249,4 @@ spec:
       accessModes: [ "ReadWriteOnce" ]
       resources:
         requests:
-          storage: 90Gi
+          storage: 70Gi
