@@ -1,58 +1,23 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: ingress-core-testnet-graph
+  name: ingress-graph-testnet-persistence
   annotations:
     nginx.ingress.kubernetes.io/ssl-redirect: "false"
-    nginx.ingress.kubernetes.io/enable-cors: "true"
-    nginx.org/websocket-services: "persistencecore-graph-node"
-    nginx.ingress.kubernetes.io/rewrite-target: /$2
 spec:
   tls:
-    - secretName: cloudflare-tls
+    - secretName: cloudflare-tls-graph-testnet
       hosts:
-        - graph.testnet.dexter.zone
+        - graph.testnet.persistence.one
   rules:
-    - host: graph.testnet.dexter.zone
-      http:
-        paths:
-          - path: /()(.*)
-            pathType: Prefix
-            backend:
-              service:
-                name: persistencecore-graph-node
-                port:
-                  number: 8000
-          - path: /ws(/|$)(.*)
-            pathType: Prefix
-            backend:
-              service:
-                name: persistencecore-graph-node
-                port:
-                  number: 8001
-  ingressClassName: nginx
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: ingress-core-testnet-hasura
-  annotations:
-    nginx.ingress.kubernetes.io/ssl-redirect: "false"
-    nginx.ingress.kubernetes.io/enable-cors: "true"
-spec:
-  tls:
-    - secretName: cloudflare-tls
-      hosts:
-        - api.testnet.dexter.zone
-  rules:
-    - host: api.testnet.dexter.zone
+    - host: graph.testnet.persistence.one
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: persistencecore-hasura
+                name: persistencecore-graph-node
                 port:
-                  number: 8080
+                  number: 8000
   ingressClassName: nginx

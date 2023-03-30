@@ -152,10 +152,11 @@ spec:
             - |
               bash /scripts/init-firehose-node.sh
 
-              echo "Installing firecosmos if not already installed"
+              echo "Checking if firecosmos already installed.."
 
               # Install firecosmos if not already installed
               if [ ! -f /persistencecore/bin/firecosmos ]; then
+                echo "Installing firecosmos ..."
                 wget https://github.com/figment-networks/firehose-cosmos/releases/download/v0.6.0/firecosmos_linux_amd64 -O firecosmos
                 chmod +x firecosmos
                 mkdir -p /persistencecore/bin

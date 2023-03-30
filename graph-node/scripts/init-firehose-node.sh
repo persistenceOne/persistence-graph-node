@@ -79,7 +79,7 @@ END
     # update the minimum-gas-prices in app.toml to 100uxprt
     sed -i 's/minimum-gas-prices = ""/minimum-gas-prices = "100uxprt"/g' $HOME_DIR/config/app.toml
 
-    # if STATE_RESTORE_SNAPSHOT_URL is not empty url and wasm folder doesn't exist, then download and extract the snapshot
+    # if STATE_RESTORE_SNAPSHOT_URL is not empty url, then download and extract the snapshot
     if [ ! -z "$STATE_RESTORE_SNAPSHOT_URL" ]; then
         echo "=> Downloading snapshot from $STATE_RESTORE_SNAPSHOT_URL"
         FILENAME=$(basename $STATE_RESTORE_SNAPSHOT_URL)
