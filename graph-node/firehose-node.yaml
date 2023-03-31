@@ -211,18 +211,12 @@ spec:
         - name: firehose-pv-storage
           persistentVolumeClaim:
             claimName: firehose-pv-claim
+        - name: node-pv-storage
+          persistentVolumeClaim:
+            claimName: node-pv-claim
         - name: config-graph
           configMap:
             name: config-graph
         - name: scripts-graph
           configMap:
             name: scripts-graph
-  volumeClaimTemplates:
-  - metadata:
-      name: node-pv-storage
-    spec:
-      storageClassName: do-block-storage
-      accessModes: [ "ReadWriteOnce" ]
-      resources:
-        requests:
-          storage: 30Gi
