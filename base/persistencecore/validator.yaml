@@ -50,7 +50,7 @@ spec:
     spec:
       initContainers:
         - name: wait-for-genesis
-          image: betterpersist/persistencecore:v6.0.0-rc12
+          image: docker.io/persistenceone/persistencecore:v7.0.0-fh
           imagePullPolicy: Always
           env:
             - name: GENESIS_HOST
@@ -68,7 +68,7 @@ spec:
               echo "Ready to start"
               exit 0
         - name: init-validator
-          image: betterpersist/persistencecore:v6.0.0-rc12
+          image: docker.io/persistenceone/persistencecore:v7.0.0-fh
           imagePullPolicy: Always
           env:
             - name: CHAIN_ID

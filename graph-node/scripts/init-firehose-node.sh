@@ -41,10 +41,11 @@ else
         curl $GENESIS_JSON_FETCH_URL -o $HOME_DIR/config/genesis.json
     fi
 
+    GENESIS_NODE_P2P="$GENESIS_NODE_ID@$GENESIS_HOST:$GENESIS_PORT_P2P"
+    echo "Node P2P: $GENESIS_NODE_P2P"
+
     # skip persistent_peers if GENESIS_NODE_DATA_RESOLUTION_METHOD is static
     if [ $GENESIS_NODE_DATA_RESOLUTION_METHOD = "DYNAMIC" ]; then
-        GENESIS_NODE_P2P="$GENESIS_NODE_ID@$GENESIS_HOST:$GENESIS_PORT_P2P"
-        echo "Node P2P: $GENESIS_NODE_P2P"
         sed -i "s/persistent_peers = \"\"/persistent_peers = \"$GENESIS_NODE_P2P\"/g" $HOME_DIR/config/config.toml
     fi
     sed -i 's#"tcp://127.0.0.1:26657"#"tcp://0.0.0.0:26657"#g' $HOME_DIR/config/config.toml
@@ -72,23 +73,45 @@ END
 
     echo "Setting up pruning configuration in app.toml"
     sed -i 's/pruning = "default"/pruning = "custom"/g' $HOME_DIR/config/app.toml
-    sed -i 's/pruning-interval = "0"/pruning-interval = "10"/g' $HOME_DIR/config/app.toml
-    sed -i 's/pruning-keep-recent = "0"/pruning-keep-recent = "100"/g' $HOME_DIR/config/app.toml
+    sed -i 's/pruning-interval = "0"/pruning-interval = "100"/g' $HOME_DIR/config/app.toml
+    sed -i 's/pruning-keep-recent = "0"/pruning-keep-recent = "10000"/g' $HOME_DIR/config/app.toml
 
-    echo "Printing app.toml"
-    cat $HOME_DIR/config/app.toml
+    # update the minimum-gas-prices in app.toml to 100uxprt
+    sed -i 's/minimum-gas-prices = ""/minimum-gas-prices = "100uxprt"/g' $HOME_DIR/config/app.toml
 
-    # Restore snapshot if url is present
+    # if STATE_RESTORE_SNAPSHOT_URL is not empty url, then download and extract the snapshot
     if [ ! -z "$STATE_RESTORE_SNAPSHOT_URL" ]; then
-        echo "Downloading snapshot from $STATE_RESTORE_SNAPSHOT_URL"
-        wget -O $HOME_DIR/snapshot.tar.gz $STATE_RESTORE_SNAPSHOT_URL
+        echo "=> Downloading snapshot from $STATE_RESTORE_SNAPSHOT_URL"
+        FILENAME=$(basename $STATE_RESTORE_SNAPSHOT_URL)
+        curl $STATE_RESTORE_SNAPSHOT_URL -o $HOME_DIR/$FILENAME
 
-        echo "Extracting snapshot"
-        tar -xvf $HOME_DIR/snapshot.tar.gz -C $HOME_DIR
-        rm -rf $HOME_DIR/snapshot.tar.gz
+        echo "=> Extracting snapshot"
+        cp $HOME_DIR/data/priv_validator_state.json $HOME/priv_validator_state_backup.json
+
+        case "$FILENAME" in
+            *.tar.lz4)
+                if ! command -v lz4 &> /dev/null; then
+                    apk add --no-cache lz4
+                fi
+
+                lz4 -c -d $HOME_DIR/$FILENAME | tar -x -C $HOME_DIR
+                # delete the $HOME_DIR/wasm/wasm/cache folder
+                rm -rf $HOME_DIR/wasm/wasm/cache
+                rm -rf $HOME_DIR/$FILENAME
+                ;;
+
+            *.tar.gz)
+                tar -xvf $HOME_DIR/$FILENAME -C $HOME_DIR
+                rm -rf $HOME_DIR/wasm/wasm/cache
+                rm -rf $HOME_DIR/$FILENAME
+                ;;
+        esac
+
+        cp $HOME_DIR/priv_validator_state_backup.json $HOME/data/priv_validator_state.json
+        rm $HOME_DIR/priv_validator_state_backup.json
     fi
-fi
 
+fi
 # copy the firehose.yml file to the HOME_DIR because config-graph is a read-only volume
 cp /config-graph/firehose.yml $HOME_DIR/config/firehose.yml
 

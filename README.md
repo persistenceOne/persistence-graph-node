@@ -77,3 +77,25 @@ Ex. For `v6.1.0` it is `v6.1.0-fh`
 
 Change the persistencecore image in `graph-node/firehose-node.yaml` file.  
 And run `kubectl apply`.
+
+## How to deploy a subgraph
+NOTE: Ensure you have right kubeconfig for the testnet/mainnet setup in Digital Ocean. Also note that this is temporary setup. We plan to implement Auth based k8s setup as possible.    
+
+### Steps  
+1. Port forward below ports your local machine(same or any unused port):-   
+    a) IPFS node: port 5001   
+    b) Graph node: port 8020   
+    example cmd:
+    ```kubectl port-forward pod-name 5001:5001 --namespace graph-core-1)```   
+
+2. To deploy a subgraph with its precise name, put & execute below steps in your package.json:-   
+  ```
+    "codegen": "graph codegen",
+    "build": "graph build",
+    "create-local": "graph create --node http://localhost:8020/ <subgraph-name>",
+    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 <subgraph-name>",
+  ```   
+3. Check the deployed subgraphs at respective GraphiQL endpoints:-   
+GraphQL endpoint for testnet: https://graph.testnet.persistence.one   
+GraphQL endpoint for mainnet: https://graph.mainnet.persistence.one   
+

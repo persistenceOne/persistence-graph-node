@@ -16,18 +16,10 @@ data:
   sync_node.exposer_port: ''
   sync_node.port_p2p: '26656'
   sync_node.genesis_json_fetch_url: 'https://raw.githubusercontent.com/persistenceOne/networks/master/test-core-1/final_genesis.json'
-  # TODO: change to v6 snapshot
-  # snapshot dir structure should follow
-  # root
-  #   - data
-  #     - application.db
-  #     - blockstore.db
-  #     - ...
-  #   - wasm
-  snapshot_restore_url: 'https://tendermint-snapshots.s3.ap-southeast-1.amazonaws.com/persistence/testnet/test.tar.gz'
-  seeds: 'b4237f8a7ca357d380ad119b76cbceec7e7e8a75@128.199.218.4:26656'
+  snapshot_restore_url: 'https://nevermore.sgp1.digitaloceanspaces.com/persistence%2Fsnapshot%2Ftestnet%2Ftestnet_10750519.tar.lz4'
+  seeds: 'b4237f8a7ca357d380ad119b76cbceec7e7e8a75@seed.testnet.persistence.one:26656'
   # For buffer time to sync the node
-  first_streamable_block: '9292200'
+  first_streamable_block: '10750521'
   force_init: 'false'
 
 ---
@@ -36,7 +28,7 @@ kind: ConfigMap
 metadata:
   name: graph-node-config
 data:
-  firehose_node.host: 'persistencecore-firehose-node.testnet.svc.cluster.local'
+  firehose_node.host: 'persistencecore-firehose-node.graph-test-core-1.svc.cluster.local'
   firehose_node.port: '9030'
-  ipfs.host: 'ipfs-node.testnet.svc.cluster.local'
+  ipfs.host: 'ipfs-node.graph-test-core-1.svc.cluster.local'
   ipfs.port: '5001'

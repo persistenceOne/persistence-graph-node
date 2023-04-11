@@ -52,9 +52,10 @@ spec:
         app.kubernetes.io/name: persistencecore-firehose-node
         app.kubernetes.io/version: '0.1'
     spec:
+      terminationGracePeriodSeconds: 10
       initContainers:
         - name: wait-for-genesis
-          image: registry.digitalocean.com/nevermore/persistence:v6.1.0-fh
+          image: docker.io/persistenceone/persistencecore:v7.0.0-fh
           imagePullPolicy: Always
           env:
             - name: GENESIS_NODE_DATA_RESOLUTION_METHOD
@@ -86,7 +87,7 @@ spec:
               echo "Ready to start"
               exit 0
         - name: init-firehose-node
-          image: registry.digitalocean.com/nevermore/persistence:v6.1.0-fh
+          image: docker.io/persistenceone/persistencecore:v7.0.0-fh
           imagePullPolicy: Always
           env:
             - name: CHAIN_ID
@@ -150,6 +151,17 @@ spec:
             - "-c"
             - |
               bash /scripts/init-firehose-node.sh
+
+              echo "Checking if firecosmos already installed.."
+
+              # Install firecosmos if not already installed
+              if [ ! -f /persistencecore/bin/firecosmos ]; then
+                echo "Installing firecosmos ..."
+                wget https://github.com/figment-networks/firehose-cosmos/releases/download/v0.6.0/firecosmos_linux_amd64 -O firecosmos
+                chmod +x firecosmos
+                mkdir -p /persistencecore/bin
+                mv firecosmos /persistencecore/bin/firecosmos
+              fi
           resources:
             limits:
               cpu: "1"
@@ -166,7 +178,7 @@ spec:
               name: scripts-graph
       containers:
         - name: firehose-node
-          image: registry.digitalocean.com/nevermore/persistence:v6.1.0-fh
+          image: docker.io/persistenceone/persistencecore:v7.0.0-fh
           imagePullPolicy: Always
           env:
             - name: CHAIN_ID
@@ -180,21 +192,14 @@ spec:
             - bash
             - "-c"
             - |
-              echo "Installing firecosmos"
-              wget https://github.com/figment-networks/firehose-cosmos/releases/download/v0.6.0/firecosmos_linux_amd64 -O firecosmos
-              chmod +x firecosmos
-              mv firecosmos /usr/local/bin
-
-              echo "starting firehose with persistence core"
-              # sleep infinity
-              firecosmos start --config $HOME_DIR/config/firehose.yml --data-dir /fh-data
+              exec /persistencecore/bin/firecosmos start --config /persistencecore/config/firehose.yml --data-dir /fh-data 
           resources:
             limits:
-              cpu: "2"
-              memory: "4G"
+              cpu: "4"
+              memory: "7G"
             requests:
-              cpu: "1"
-              memory: "3G"
+              cpu: "3"
+              memory: "6G"
           volumeMounts:
             - mountPath: /persistencecore
               name: node-pv-storage
@@ -206,18 +211,12 @@ spec:
         - name: firehose-pv-storage
           persistentVolumeClaim:
             claimName: firehose-pv-claim
+        - name: node-pv-storage
+          persistentVolumeClaim:
+            claimName: node-pv-claim
         - name: config-graph
           configMap:
             name: config-graph
         - name: scripts-graph
           configMap:
             name: scripts-graph
-  volumeClaimTemplates:
-  - metadata:
-      name: node-pv-storage
-    spec:
-      storageClassName: do-block-storage
-      accessModes: [ "ReadWriteOnce" ]
-      resources:
-        requests:
-          storage: 30Gi

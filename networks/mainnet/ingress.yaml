@@ -1,16 +1,16 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: ingress-graph-testnet-persistence
+  name: ingress-graph-mainnet-persistence
   annotations:
     nginx.ingress.kubernetes.io/ssl-redirect: "false"
 spec:
   tls:
-    - secretName: cloudflare-tls-graph-testnet
+    - secretName: cloudflare-tls
       hosts:
-        - graph.testnet.persistence.one
+        - graph.mainnet.persistence.one
   rules:
-    - host: graph.testnet.persistence.one
+    - host: graph.mainnet.persistence.one
       http:
         paths:
           - path: /

@@ -88,7 +88,7 @@ spec:
 
       containers:
         - name: graph-node
-          image: graphprotocol/graph-node:latest
+          image: graphprotocol/graph-node:v0.29.0
           imagePullPolicy: Always
           env:
             - name: FIREHOSE_HOST
@@ -166,10 +166,10 @@ spec:
           resources:
             limits:
               cpu: "2"
-              memory: "4G"
+              memory: "2G"
             requests:
               cpu: "1"
-              memory: "2G"
+              memory: "1G"
           volumeMounts:
             - mountPath: config-graph
               name: config-graph
