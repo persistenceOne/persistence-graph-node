@@ -79,7 +79,7 @@ Change the persistencecore image in `graph-node/firehose-node.yaml` file.
 And run `kubectl apply`.
 
 ## How to deploy a subgraph
-NOTE: Ensure you have right kubeconfig for the testnet/mainnet setup.   
+NOTE: Ensure you have right kubeconfig for the testnet/mainnet setup in Digital Ocean. Also note that this is temporary setup. We plan to implement Auth based k8s setup as possible.    
 
 ### Steps  
 1. Port forward below ports your local machine(same or any unused port):-   
