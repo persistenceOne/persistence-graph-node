@@ -4,20 +4,55 @@ metadata:
   name: ingress-graph-mainnet-persistence
   annotations:
     nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.org/websocket-services: "persistencecore-graph-node"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
 spec:
   tls:
     - secretName: cloudflare-tls
       hosts:
-        - graph.mainnet.persistence.one
+        - graph.core-1.dexter.zone
   rules:
-    - host: graph.mainnet.persistence.one
+    - host: graph.core-1.dexter.zone
       http:
         paths:
-          - path: /
+          - path: /()(.*)
             pathType: Prefix
             backend:
               service:
                 name: persistencecore-graph-node
                 port:
                   number: 8000
+          - path: /ws(/|$)(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: persistencecore-graph-node
+                port:
+                  number: 8001
+  ingressClassName: nginx
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-core-mainnet-hasura
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+spec:
+  tls:
+    - secretName: cloudflare-tls
+      hosts:
+        - api.core-1.dexter.zone
+  rules:
+    - host: api.core-1.dexter.zone
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: persistencecore-hasura
+                port:
+                  number: 8080
   ingressClassName: nginx
