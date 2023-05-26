@@ -40,10 +40,10 @@ spec:
         app.kubernetes.io/name: persistencecore-firehose
         app.kubernetes.io/version: '0.1'
     spec:
-      terminationGracePeriodSeconds: 10
+      terminationGracePeriodSeconds: 30
       initContainers:
         - name: wait-for-genesis
-          image: docker.io/persistenceone/persistencecore:v7.0.0-fh
+          image: docker.io/persistenceone/persistencecore:v8.0.0-rc3-fh
           imagePullPolicy: Always
           env:
             - name: GENESIS_NODE_DATA_RESOLUTION_METHOD
@@ -75,7 +75,7 @@ spec:
               echo "Ready to start"
               exit 0
         - name: init-firehose-node
-          image: docker.io/persistenceone/persistencecore:v7.0.0-fh
+          image: docker.io/persistenceone/persistencecore:v8.0.0-rc3-fh
           imagePullPolicy: Always
           env:
             - name: CHAIN_ID
@@ -165,7 +165,7 @@ spec:
               name: scripts-graph
       containers:
         - name: firehose-node
-          image: docker.io/persistenceone/persistencecore:v7.0.0-fh
+          image: docker.io/persistenceone/persistencecore:v8.0.0-rc3-fh
           imagePullPolicy: Always
           env:
             - name: CHAIN_ID
@@ -204,7 +204,10 @@ spec:
             - bash
             - "-c"
             - |
-              exec /persistencecore/bin/firecosmos start reader merger firehose \
+              sleep infinity
+              # exec /persistencecore/bin/firecosmos start reader merger relayer firehose \
+              # exec /persistencecore/bin/firecosmos start reader \
+              exec /persistencecore/bin/firecosmos start reader merger relayer firehose \
                 --reader-mode node \
                 --reader-node-path /usr/bin/persistenceCore \
                 --reader-node-args "start --x-crisis-skip-assert-invariants --home /persistencecore" \
@@ -215,11 +218,11 @@ spec:
                 --data-dir /fh-data 
           resources:
             limits:
-              cpu: "2"
-              memory: "6G"
+              cpu: "3"
+              memory: "7G"
             requests:
-              cpu: "2"
-              memory: "6G"
+              cpu: "3"
+              memory: "7G"
           volumeMounts:
             - mountPath: /persistencecore
               name: node-pv-storage
@@ -240,4 +243,4 @@ spec:
       accessModes: [ "ReadWriteOnce" ]
       resources:
         requests:
-          storage: 20Gi
+          storage: 30Gi

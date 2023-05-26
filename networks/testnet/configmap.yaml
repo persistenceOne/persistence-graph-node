@@ -16,12 +16,13 @@ data:
   sync_node.exposer_port: ''
   sync_node.port_p2p: '26656'
   sync_node.genesis_json_fetch_url: 'https://raw.githubusercontent.com/persistenceOne/networks/master/test-core-1/final_genesis.json'
-  snapshot_restore_url: 'https://nevermore.sgp1.digitaloceanspaces.com/persistence%2Fsnapshot%2Ftestnet%2Ftestnet_10750519.tar.lz4'
-  seeds: 'b4237f8a7ca357d380ad119b76cbceec7e7e8a75@seed.testnet.persistence.one:26656'
+  snapshot_restore_url: 'https://dexter-zone.sgp1.digitaloceanspaces.com/persistence-snapshot/backup_1094_testnet.tar.lz4'
+  seeds: 'ade4d8bc8cbe014af6ebdf3cb7b1e9ad36f412c0@testnet-seeds.polkachu.com:15456,b4237f8a7ca357d380ad119b76cbceec7e7e8a75@seed.testnet.persistence.one:26656'
   # For buffer time to sync the node
   first_streamable_block: '10750521'
   force_init: 'false'
-
+  one_block_store_url: 's3://sgp1.digitaloceanspaces.com/dexter-zone/testnet/one-blocks?region=us-east-1'
+  merged_blocks_store_url: 's3://sgp1.digitaloceanspaces.com/dexter-zone/testnet/merged-blocks?region=us-east-1'
 ---
 apiVersion: v1
 kind: ConfigMap

@@ -2,5 +2,5 @@ namespace: graph-test-core-1
 
 resources:
   - ingress.yaml
-  - ../../graph-node
   - configmap.yaml
+  - ../../graph-node-alternate/overlays/one-pod

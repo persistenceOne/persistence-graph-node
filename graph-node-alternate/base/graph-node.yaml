@@ -152,13 +152,6 @@ spec:
               # Print config before starting node
               cat config.toml
 
-              # maybe dns needs some time to resolve?
-              # sleep 10
-
-              # echo "Sleeping for infinity"
-              # sleep infinity
-
-              # Start graph node
               graph-node --config config.toml \
                 --ipfs "$IPFS_HOST:$IPFS_PORT" \
                 --node-id index_node_cosmos_1

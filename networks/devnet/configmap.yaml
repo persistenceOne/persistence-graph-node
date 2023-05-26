@@ -16,7 +16,7 @@ data:
   sync_node.exposer_port: '8081'
   sync_node.port_p2p: '26656'
   sync_node.genesis_json_fetch_url: ''
-  snapshot_restore_url: ''
+  snapshot_restore_url: 'https://dexter-zone.sgp1.digitaloceanspaces.com/persistence-snapshot/devnet-backup.tar.lz4'
   seeds: ''
   # For buffer time to sync the node
   first_streamable_block: '50'

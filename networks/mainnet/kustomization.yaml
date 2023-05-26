@@ -2,5 +2,5 @@ namespace: graph-core-1
 
 resources:
   - ingress.yaml
-  - ../../graph-node-alternate
+  - ../../graph-node-alternate/overlays/multi-pod
   - configmap.yaml

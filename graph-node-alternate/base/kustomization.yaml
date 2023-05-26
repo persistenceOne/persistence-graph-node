@@ -1,12 +1,8 @@
 resources:
-  # - firehose-reader.yaml
-  # - firehose-merger.yaml
-  # - firehose-relayer.yaml
-  # - firehose-firehose.yaml
-  - graph-node.yaml
-  - ipfs-node.yaml
+  # - graph-node.yaml
+  # - ipfs-node.yaml
   # - hasura.yaml
-  - ipfs-persistent-volume.yaml
+  # - ipfs-persistent-volume.yaml
 
 generatorOptions:
   disableNameSuffixHash: true
