@@ -46,7 +46,7 @@ spec:
           image: betterpersist/firecosmos:0.6.0
           imagePullPolicy: Always
           env:
-            - name: FIRST_STREAMBLE_BLOCK
+            - name: FIRST_STREAMABLE_BLOCK
               valueFrom:
                 configMapKeyRef:
                   key: first_streamable_block
@@ -67,7 +67,7 @@ spec:
             - |
               exec firecosmos start relayer \
                 --relayer-source persistencecore-firehose-reader.mainnet.svc.cluster.local:9000 \
-                --common-first-streamable-block $FIRST_STREAMBLE_BLOCK
+                --common-first-streamable-block $FIRST_STREAMABLE_BLOCK
           resources:
             limits:
               cpu: "1"

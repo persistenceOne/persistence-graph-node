@@ -1,8 +1,9 @@
 resources:
-  # - graph-node.yaml
-  # - ipfs-node.yaml
-  # - hasura.yaml
-  # - ipfs-persistent-volume.yaml
+  - graph-node.yaml
+  - ipfs-node.yaml
+  - hasura.yaml
+  # - hasura2.yaml
+  - ipfs-persistent-volume.yaml
 
 generatorOptions:
   disableNameSuffixHash: true

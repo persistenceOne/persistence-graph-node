@@ -58,6 +58,11 @@ else
         sed -i "s/seeds = \"\"/seeds = \"$SEEDS\"/g" $HOME_DIR/config/config.toml
     fi
 
+    # replace persistent_peers if the variable is not empty
+    if [ ! -z "$PERSISTENT_PEERS" ]; then
+        sed -i "s/persistent_peers = \"\"/persistent_peers = \"$PERSISTENT_PEERS\"/g" $HOME_DIR/config/config.toml
+    fi
+
     echo "Printing the whole config.toml file"
 
     cat << END >> $HOME_DIR/config/config.toml
@@ -119,8 +124,8 @@ fi
 # copy the firehose.yml file to the HOME_DIR because config-graph is a read-only volume
 cp /config-graph/firehose-reader.yml $HOME_DIR/config/firehose.yml
 
-# if FIRST_STREAMBLE_BLOCK is not empty, then set the first_streamable_block in firehose.yml
-if [ ! -z "$FIRST_STREAMBLE_BLOCK" ]; then
-    echo "Setting common-first-streamable-block to $FIRST_STREAMBLE_BLOCK"
-    sed -i "s/common-first-streamable-block: 0/common-first-streamable-block: $FIRST_STREAMBLE_BLOCK/g" $HOME_DIR/config/firehose.yml
+# if FIRST_STREAMABLE_BLOCK is not empty, then set the first_streamable_block in firehose.yml
+if [ ! -z "$FIRST_STREAMABLE_BLOCK" ]; then
+    echo "Setting common-first-streamable-block to $FIRST_STREAMABLE_BLOCK"
+    sed -i "s/common-first-streamable-block: 0/common-first-streamable-block: $FIRST_STREAMABLE_BLOCK/g" $HOME_DIR/config/firehose.yml
 fi

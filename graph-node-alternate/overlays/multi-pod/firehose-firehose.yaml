@@ -46,7 +46,7 @@ spec:
           image: betterpersist/firecosmos:0.6.0
           imagePullPolicy: Always
           env:
-            - name: FIRST_STREAMBLE_BLOCK
+            - name: FIRST_STREAMABLE_BLOCK
               valueFrom:
                 configMapKeyRef:
                   key: first_streamable_block
@@ -76,10 +76,11 @@ spec:
             - "-c"
             - |
               export NAMESPACE=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
+              # sleep infinity
               exec firecosmos start firehose \
                 --common-live-blocks-addr persistencecore-firehose-relayer.$NAMESPACE.svc.cluster.local:9010 \
-                --common-first-streamable-block $FIRST_STREAMBLE_BLOCK \
-                --common-one-block-store-url $ONE_BLOCKS_STORE_URL \
+                --common-first-streamable-block $FIRST_STREAMABLE_BLOCK \
+                --common-one-block-store-url $ONE_BLOCK_STORE_URL \
                 --common-merged-blocks-store-url $MERGED_BLOCKS_STORE_URL
           resources:
             limits:

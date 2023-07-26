@@ -1,5 +1,5 @@
 resources:
-  - ../base/
+  - ../../base/
   - firehose-reader.yaml
   - firehose-merger.yaml
   - firehose-relayer.yaml
