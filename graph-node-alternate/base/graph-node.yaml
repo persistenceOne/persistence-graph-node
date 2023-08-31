@@ -20,6 +20,10 @@ spec:
       port: 8020
       protocol: TCP
       targetPort: 8020
+    - name: health
+      port: 8030
+      protocol: TCP
+      targetPort: 8030
   selector:
     app.kubernetes.io/name: persistencecore-graph-node
 ---
