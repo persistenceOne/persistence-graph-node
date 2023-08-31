@@ -50,7 +50,7 @@ spec:
     spec:
       initContainers:
         - name: wait-for-genesis
-          image: persistenceone/persistencecore:v7.0.3-fh
+          image: persistenceone/persistencecore:v8.0.0-fh
           imagePullPolicy: Always
           env:
             - name: GENESIS_HOST
@@ -68,7 +68,7 @@ spec:
               echo "Ready to start"
               exit 0
         - name: init-validator
-          image: persistenceone/persistencecore:v7.0.3-fh
+          image: persistenceone/persistencecore:v8.0.0-fh
           imagePullPolicy: Always
           env:
             - name: CHAIN_ID

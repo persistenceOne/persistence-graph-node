@@ -43,7 +43,7 @@ spec:
       terminationGracePeriodSeconds: 30
       initContainers:
         - name: wait-for-genesis
-          image: persistenceone/persistencecore:v7.0.3-fh
+          image: persistenceone/persistencecore:v8.1.0-fh
           imagePullPolicy: Always
           env:
             - name: GENESIS_NODE_DATA_RESOLUTION_METHOD
@@ -75,7 +75,7 @@ spec:
               echo "Ready to start"
               exit 0
         - name: init-firehose-node
-          image: persistenceone/persistencecore:v7.0.3-fh
+          image: persistenceone/persistencecore:v8.1.0-fh
           imagePullPolicy: Always
           env:
             - name: CHAIN_ID
@@ -170,7 +170,7 @@ spec:
               name: scripts-graph
       containers:
         - name: firehose-node
-          image: persistenceone/persistencecore:v7.0.3-fh
+          image: persistenceone/persistencecore:v8.1.0-fh
           imagePullPolicy: Always
           env:
             - name: CHAIN_ID
@@ -210,8 +210,8 @@ spec:
             - "-c"
             - |
               # sleep infinity
-              # exec /persistencecore/bin/firecosmos start reader merger relayer firehose \
-              # exec /persistencecore/bin/firecosmos start reader merger \
+              # exec /persistencecore/bin/firecosmos start reader  \
+              # exec /persistencecore/bin/firecosmos start merger \
               exec /persistencecore/bin/firecosmos start reader merger relayer firehose \
                 --reader-mode node \
                 --reader-node-path /usr/bin/persistenceCore \
@@ -248,4 +248,4 @@ spec:
       accessModes: [ "ReadWriteOnce" ]
       resources:
         requests:
-          storage: 30Gi
+          storage: 100Gi
