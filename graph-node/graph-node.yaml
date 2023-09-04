@@ -20,6 +20,14 @@ spec:
       port: 8020
       protocol: TCP
       targetPort: 8020
+    - name: health
+      port: 8030
+      protocol: TCP
+      targetPort: 8030
+    - name: prometheus
+      port: 8040
+      protocol: TCP
+      targetPort: 8040
   selector:
     app.kubernetes.io/name: persistencecore-graph-node
 ---

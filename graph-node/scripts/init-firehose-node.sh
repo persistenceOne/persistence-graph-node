@@ -52,6 +52,7 @@ else
     sed -i 's/timeout_commit = "5s"/timeout_commit = "1s"/g' $HOME_DIR/config/config.toml
     sed -i 's/timeout_propose = "3s"/timeout_propose = "1s"/g' $HOME_DIR/config/config.toml
     sed -i 's/index_all_keys = false/index_all_keys = true/g' $HOME_DIR/config/config.toml
+    sed -i 's/prometheus = false/prometheus = true/g' $HOME_DIR/config/config.toml
 
     # replace seeds if the variable is not empty
     if [ ! -z "$SEEDS" ]; then
