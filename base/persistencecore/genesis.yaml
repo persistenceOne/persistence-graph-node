@@ -58,7 +58,7 @@ spec:
     spec:
       initContainers:
         - name: init-genesis
-          image: persistenceone/persistencecore:v8.0.0-fh
+          image: persistenceone/persistencecore:v8.1.0-fh
           imagePullPolicy: Always
           env:
             - name: COINS
@@ -107,12 +107,13 @@ spec:
               sed -i 's/timeout_propose = "3s"/timeout_propose = "1s"/g' $HOME_DIR/config/config.toml
               sed -i 's/index_all_keys = false/index_all_keys = true/g' $HOME_DIR/config/config.toml
               sed -i 's/unsafe = false/unsafe = true/g' $HOME_DIR/config/config.toml
-              sed -i 's/minimum-gas-prices = ""/minimum-gas-prices = "0.00uxprt"/g' $HOME_DIR/config/config.toml
+              sed -i 's/minimum-gas-prices = ""/minimum-gas-prices = "0.01uxprt"/g' $HOME_DIR/config/config.toml
               sed -i 's/cors_allowed_origins = []/cors_allowed_origins = ["*"]/g' $HOME_DIR/config/config.toml
               
               sed -i 's/enable = false/enable = true/g' $HOME_DIR/config/app.toml
               sed -i 's/swagger = false/swagger = true/g' $HOME_DIR/config/app.toml
               sed -i 's/enabled-unsafe-cors = false/enabled-unsafe-cors = true/g' $HOME_DIR/config/app.toml
+              sed -i 's/min-gas-prices = ""/min-gas-prices = "0.01uxprt"/g' $HOME_DIR/config/app.toml
               
               jq '.consensus_params.block.max_bytes |= "42020096"' $HOME_DIR/config/genesis.json | tee $HOME_DIR/config/genesis.new.json
               mv $HOME_DIR/config/genesis.new.json $HOME_DIR/config/genesis.json
@@ -152,7 +153,7 @@ spec:
               name: addresses
       containers:
         - name: validator
-          image: persistenceone/persistencecore:v8.0.0-fh
+          image: persistenceone/persistencecore:v8.1.0-fh
           imagePullPolicy: Always
           env:
             - name: CHAIN_ID
@@ -166,6 +167,7 @@ spec:
             - bash
             - "-c"
             - |
+              sleep infinity
               persistenceCore start --home $HOME_DIR
           resources:
             limits:

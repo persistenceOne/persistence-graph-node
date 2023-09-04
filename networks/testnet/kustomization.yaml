@@ -1,4 +1,4 @@
-namespace: graph-test-core-1
+namespace: testnet
 
 resources:
   - ingress.yaml

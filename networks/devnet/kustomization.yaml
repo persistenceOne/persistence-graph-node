@@ -2,6 +2,6 @@ namespace: devnet
 
 resources:
   - ../../base/persistencecore
-  - ingress.yaml
-  - configmap.yaml
-  - ../../graph-node-alternate/overlays/one-pod
+  # - ingress.yaml
+  # - configmap.yaml
+  # - ../../graph-node-alternate/overlays/one-pod
