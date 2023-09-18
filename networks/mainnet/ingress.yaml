@@ -52,7 +52,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: persistencecore-hasura
+                name: dexter-hasura
                 port:
                   number: 8080
   ingressClassName: nginx
