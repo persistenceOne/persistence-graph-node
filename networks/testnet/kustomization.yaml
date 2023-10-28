@@ -4,3 +4,7 @@ resources:
   - ingress.yaml
   - configmap.yaml
   - ../../graph-node-alternate/overlays/one-pod
+
+images:
+- name: persistenceone/persistencecore:v9.2.0-fh
+  newTag: v10.1.0-testnet-fh
