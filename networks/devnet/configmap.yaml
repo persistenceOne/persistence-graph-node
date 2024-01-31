@@ -16,13 +16,13 @@ data:
   sync_node.exposer_port: '8081'
   sync_node.port_p2p: '26656'
   sync_node.genesis_json_fetch_url: ''
-  snapshot_restore_url: 'https://dexter-zone.sgp1.digitaloceanspaces.com/persistence-snapshot/devnet-backup.tar.lz4'
+  snapshot_restore_url: ''
   seeds: ''
-  # For buffer time to sync the node
+  persistent_peers: ''
   first_streamable_block: '50'
   force_init: 'false'
-  one_block_store_url: 's3://sgp1.digitaloceanspaces.com/dexter-zone/devnet/one-blocks?region=us-east-1'
-  merged_blocks_store_url: 's3://sgp1.digitaloceanspaces.com/dexter-zone/devnet/merged-blocks?region=us-east-1'
+  one_block_store_url: 's3://sgp1.digitaloceanspaces.com/dexter-zone/devnet-v9_2/one-blocks?region=us-east-1'
+  merged_blocks_store_url: 's3://sgp1.digitaloceanspaces.com/dexter-zone/devnet-v9_2/merged-blocks?region=us-east-1'
 ---
 apiVersion: v1
 kind: ConfigMap

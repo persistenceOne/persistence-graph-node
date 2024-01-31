@@ -1,6 +1,6 @@
 resources:
   - genesis.yaml
-  - configmap.yaml
+  # - configmap.yaml
   # - validator.yaml
 
 generatorOptions:
