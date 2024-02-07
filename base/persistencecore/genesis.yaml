@@ -58,7 +58,7 @@ spec:
     spec:
       initContainers:
         - name: init-genesis
-          image: docker.io/persistenceone/persistencecore:v7.0.0-fh
+          image: persistenceone/persistencecore:v9.2.1-fh
           imagePullPolicy: Always
           env:
             - name: COINS
@@ -86,52 +86,65 @@ spec:
               jq -r ".genesis[0].mnemonic" /configs/validators.json | persistenceCore keys add $(jq -r ".genesis[0].name" /configs/validators.json) --recover --keyring-backend='test' --home $HOME_DIR
               
               # Provide genesis validator self deligations
-              persistenceCore add-genesis-account $(jq -r .genesis[$i].address /configs/validators.json) $COINS --keyring-backend='test' --home $HOME_DIR
+              persistenceCore genesis add-genesis-account $(jq -r .genesis[$i].address /configs/validators.json) $COINS --keyring-backend='test' --home $HOME_DIR
               
               # Give Validator addresses initial coins
               for ((i=0; i<$(jq -r '.validators | length' /configs/validators.json); i++))
               do
                 jq -r ".validators[$i].mnemonic" /configs/validators.json | persistenceCore keys add $(jq -r ".validators[$i].name" /configs/validators.json) --recover --keyring-backend='test' --home $HOME_DIR
-                persistenceCore add-genesis-account $(jq -r .validators[$i].address /configs/validators.json) $COINS --keyring-backend='test' --home $HOME_DIR
+                persistenceCore genesis add-genesis-account $(jq -r .validators[$i].address /configs/validators.json) $COINS --keyring-backend='test' --home $HOME_DIR
               done
               
-              persistenceCore gentx $(jq -r ".genesis[0].name" /configs/validators.json) 5000000000uxprt --keyring-backend="test" --chain-id $CHAIN_ID --home $HOME_DIR
+              persistenceCore genesis gentx $(jq -r ".genesis[0].name" /configs/validators.json) 5000000000uxprt --keyring-backend="test" --chain-id $CHAIN_ID --home $HOME_DIR
               echo "Output of gentx"
               cat $HOME_DIR/config/gentx/*.json | jq
               
               echo "Running collect-gentxs"
-              persistenceCore collect-gentxs --home $HOME_DIR
+              persistenceCore genesis collect-gentxs --home $HOME_DIR
               
               sed -i 's#"tcp://127.0.0.1:26657"#"tcp://0.0.0.0:26657"#g' $HOME_DIR/config/config.toml
               sed -i 's/timeout_commit = "5s"/timeout_commit = "1s"/g' $HOME_DIR/config/config.toml
               sed -i 's/timeout_propose = "3s"/timeout_propose = "1s"/g' $HOME_DIR/config/config.toml
               sed -i 's/index_all_keys = false/index_all_keys = true/g' $HOME_DIR/config/config.toml
               sed -i 's/unsafe = false/unsafe = true/g' $HOME_DIR/config/config.toml
-              sed -i 's/minimum-gas-prices = ""/minimum-gas-prices = "0.00uxprt"/g' $HOME_DIR/config/config.toml
+              sed -i 's/minimum-gas-prices = ""/minimum-gas-prices = "0.01uxprt"/g' $HOME_DIR/config/config.toml
               sed -i 's/cors_allowed_origins = []/cors_allowed_origins = ["*"]/g' $HOME_DIR/config/config.toml
               
               sed -i 's/enable = false/enable = true/g' $HOME_DIR/config/app.toml
               sed -i 's/swagger = false/swagger = true/g' $HOME_DIR/config/app.toml
               sed -i 's/enabled-unsafe-cors = false/enabled-unsafe-cors = true/g' $HOME_DIR/config/app.toml
+              sed -i 's/min-gas-prices = ""/min-gas-prices = "0.01uxprt"/g' $HOME_DIR/config/app.toml
               
               jq '.consensus_params.block.max_bytes |= "42020096"' $HOME_DIR/config/genesis.json | tee $HOME_DIR/config/genesis.new.json
               mv $HOME_DIR/config/genesis.new.json $HOME_DIR/config/genesis.json
               jq '.app_state.gov.voting_params.voting_period |= "30s"' $HOME_DIR/config/genesis.json | tee $HOME_DIR/config/genesis.new.json
               mv $HOME_DIR/config/genesis.new.json $HOME_DIR/config/genesis.json
+              jq '.app_state.gov.params.voting_period |= "30s"' $HOME_DIR/config/genesis.json | tee $HOME_DIR/config/genesis.new.json
+              mv $HOME_DIR/config/genesis.new.json $HOME_DIR/config/genesis.json
               jq '.app_state.gov.tally_params.quorum |= "0.0"' $HOME_DIR/config/genesis.json | tee $HOME_DIR/config/genesis.new.json
               mv $HOME_DIR/config/genesis.new.json $HOME_DIR/config/genesis.json
+              jq '.app_state.gov.params.quorum |= "0.0"' $HOME_DIR/config/genesis.json | tee $HOME_DIR/config/genesis.new.json
+              mv $HOME_DIR/config/genesis.new.json $HOME_DIR/config/genesis.json
               jq '.app_state.gov.deposit_params.min_deposit[0].amount |= "10"' $HOME_DIR/config/genesis.json | tee $HOME_DIR/config/genesis.new.json
+              mv $HOME_DIR/config/genesis.new.json $HOME_DIR/config/genesis.json
+              jq '.app_state.gov.params.min_deposit[0].amount |= "10"' $HOME_DIR/config/genesis.json | tee $HOME_DIR/config/genesis.new.json
               mv $HOME_DIR/config/genesis.new.json $HOME_DIR/config/genesis.json
               
               jq '.app_state.crisis.constant_fee.denom |= "uxprt"' $HOME_DIR/config/genesis.json | tee $HOME_DIR/config/genesis.new.json
               mv $HOME_DIR/config/genesis.new.json $HOME_DIR/config/genesis.json
               jq '.app_state.gov.deposit_params.min_deposit[0].denom |= "uxprt"' $HOME_DIR/config/genesis.json | tee $HOME_DIR/config/genesis.new.json
               mv $HOME_DIR/config/genesis.new.json $HOME_DIR/config/genesis.json
-              jq '.app_state.liquidity.params.pool_creation_fee[0].denom |= "uxprt"' $HOME_DIR/config/genesis.json | tee $HOME_DIR/config/genesis.new.json
+              jq '.app_state.gov.params.min_deposit[0].denom |= "uxprt"' $HOME_DIR/config/genesis.json | tee $HOME_DIR/config/genesis.new.json
               mv $HOME_DIR/config/genesis.new.json $HOME_DIR/config/genesis.json
+              # jq '.app_state.liquidity.params.pool_creation_fee[0].denom |= "uxprt"' $HOME_DIR/config/genesis.json | tee $HOME_DIR/config/genesis.new.json
+              # mv $HOME_DIR/config/genesis.new.json $HOME_DIR/config/genesis.json
               jq '.app_state.mint.params.mint_denom |= "uxprt"' $HOME_DIR/config/genesis.json | tee $HOME_DIR/config/genesis.new.json
               mv $HOME_DIR/config/genesis.new.json $HOME_DIR/config/genesis.json
               jq '.app_state.staking.params.bond_denom |= "uxprt"' $HOME_DIR/config/genesis.json | tee $HOME_DIR/config/genesis.new.json
+              mv $HOME_DIR/config/genesis.new.json $HOME_DIR/config/genesis.json
+
+              # update slash_window parameter (app_state.oracle.slash_window) from 1 day and 4 hours to an year in seconds
+              jq '.app_state.oracle.params.slash_window |= "31536000"' $HOME_DIR/config/genesis.json | tee $HOME_DIR/config/genesis.new.json
               mv $HOME_DIR/config/genesis.new.json $HOME_DIR/config/genesis.json
               
               echo "TRYING TO PRINT GENESIS JSON"
@@ -152,7 +165,7 @@ spec:
               name: addresses
       containers:
         - name: validator
-          image: docker.io/persistenceone/persistencecore:v7.0.0-fh
+          image: persistenceone/persistencecore:v9.2.1-fh
           imagePullPolicy: Always
           env:
             - name: CHAIN_ID
@@ -166,6 +179,7 @@ spec:
             - bash
             - "-c"
             - |
+              # sleep infinity
               persistenceCore start --home $HOME_DIR
           resources:
             limits:

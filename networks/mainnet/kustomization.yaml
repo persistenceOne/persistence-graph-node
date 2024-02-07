@@ -1,6 +1,6 @@
-namespace: graph-core-1
+namespace: mainnet
 
 resources:
   - ingress.yaml
-  - ../../graph-node
+  - ../../graph-node-alternate/overlays/multi-pod
   - configmap.yaml

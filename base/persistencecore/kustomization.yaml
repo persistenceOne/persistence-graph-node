@@ -1,6 +1,7 @@
 resources:
   - genesis.yaml
-  - validator.yaml
+  # - configmap.yaml
+  # - validator.yaml
 
 generatorOptions:
   disableNameSuffixHash: true

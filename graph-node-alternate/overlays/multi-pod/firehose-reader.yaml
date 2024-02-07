@@ -2,43 +2,39 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: persistencecore-firehose-node
+  name: persistencecore-firehose-reader
   labels:
-    app.kubernetes.io/name: persistencecore-firehose-node
+    app.kubernetes.io/name: persistencecore-firehose-reader
 spec:
   clusterIP: None
   ports:
-    - name: p2p
-      port: 26656
+    - name: firehose-reader
+      port: 9000
       protocol: TCP
-      targetPort: 26656
-    - name: rpc
-      port: 26657
+      targetPort: 9000
+    - name: prometheus-node
+      port: 26660
       protocol: TCP
-      targetPort: 26657
-    - name: http
-      port: 8081
+      targetPort: 26660
+    - name: prometheus-firehose
+      port: 9102
       protocol: TCP
-      targetPort: 8081
-    - name: firehose
-      port: 9030
-      protocol: TCP
-      targetPort: 9030
+      targetPort: 9102
   selector:
-    app.kubernetes.io/name: persistencecore-firehose-node
+    app.kubernetes.io/name: persistencecore-firehose-reader
 ---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: persistencecore-firehose-node
+  name: persistencecore-firehose-reader
 spec:
-  serviceName: persistencecore-firehose-node
+  serviceName: persistencecore-firehose-reader
   replicas: 1
   revisionHistoryLimit: 3
   selector:
     matchLabels:
       app.kubernetes.io/instance: persistencecore
-      app.kubernetes.io/name: persistencecore-firehose-node
+      app.kubernetes.io/name: persistencecore-firehose-reader
   template:
     metadata:
       annotations:
@@ -48,14 +44,14 @@ spec:
         tier: gateway
       labels:
         app.kubernetes.io/instance: persistencecore
-        app.kubernetes.io/type: persistencecore-firehose-node
-        app.kubernetes.io/name: persistencecore-firehose-node
+        app.kubernetes.io/type: persistencecore-firehose-reader
+        app.kubernetes.io/name: persistencecore-firehose-reader
         app.kubernetes.io/version: '0.1'
     spec:
       terminationGracePeriodSeconds: 10
       initContainers:
         - name: wait-for-genesis
-          image: persistenceone/persistencecore:v9.2.1-fh
+          image: persistenceone/persistencecore:v10.3.0-fh
           imagePullPolicy: Always
           env:
             - name: GENESIS_NODE_DATA_RESOLUTION_METHOD
@@ -87,7 +83,7 @@ spec:
               echo "Ready to start"
               exit 0
         - name: init-firehose-node
-          image: persistenceone/persistencecore:v9.2.1-fh
+          image: persistenceone/persistencecore:v10.3.0-fh
           imagePullPolicy: Always
           env:
             - name: CHAIN_ID
@@ -136,6 +132,11 @@ spec:
                 configMapKeyRef:
                   key: seeds
                   name: firehose-node-config
+            - name: PERSISTENT_PEERS
+              valueFrom:
+                configMapKeyRef:
+                  key: persistent_peers
+                  name: firehose-node-config
             - name: FIRST_STREAMABLE_BLOCK
               valueFrom:
                 configMapKeyRef:
@@ -152,11 +153,10 @@ spec:
             - |
               bash /scripts/init-firehose-node.sh
 
-              echo "Checking if firecosmos already installed.."
+              echo "Installing firecosmos if not already installed"
 
               # Install firecosmos if not already installed
               if [ ! -f /persistencecore/bin/firecosmos ]; then
-                echo "Installing firecosmos ..."
                 wget https://github.com/figment-networks/firehose-cosmos/releases/download/v0.6.0/firecosmos_linux_amd64 -O firecosmos
                 chmod +x firecosmos
                 mkdir -p /persistencecore/bin
@@ -178,7 +178,7 @@ spec:
               name: scripts-graph
       containers:
         - name: firehose-node
-          image: persistenceone/persistencecore:v9.2.1-fh
+          image: persistenceone/persistencecore:v10.3.0-fh
           imagePullPolicy: Always
           env:
             - name: CHAIN_ID
@@ -188,46 +188,58 @@ spec:
                   name: persistencecore
             - name: HOME_DIR
               value: /persistencecore
-          # command:
-          #   - /persistencecore/bin/firecosmos
-          # args:
-          #   - start
-          #   - --config
-          #   - /persistencecore/config/firehose.yml
-          #   - --data-dir
-          #   - /fh-data
-          # command:
-          #   - persistenceCore
-          # args:
-          #   - start
-          #   - --home
-          #   - /persistencecore
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  key: aws_access_key_id
+                  name: firehose-node-aws-credentials
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: aws_secret_access_key
+                  name: firehose-node-aws-credentials
+            - name: ONE_BLOCK_STORE_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: one_block_store_url
+                  name: firehose-node-config
+            - name: MERGED_BLOCKS_STORE_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: merged_blocks_store_url
+                  name: firehose-node-config
+            - name: FIRST_STREAMABLE_BLOCK
+              valueFrom:
+                configMapKeyRef:
+                  key: first_streamable_block
+                  name: firehose-node-config
           command:
             - bash
             - "-c"
             - |
-              exec /persistencecore/bin/firecosmos start --config /persistencecore/config/firehose.yml --data-dir /fh-data 
+              # sleep infinity
+              exec /persistencecore/bin/firecosmos start reader \
+                --reader-mode node \
+                --reader-node-path /usr/bin/persistenceCore \
+                --reader-node-args "start --x-crisis-skip-assert-invariants --home /persistencecore" \
+                --reader-node-logs-filter "module=(p2p|pex|consensus|x/bank|x/wasm)" \
+                --common-first-streamable-block $FIRST_STREAMABLE_BLOCK \
+                --common-one-block-store-url "$ONE_BLOCK_STORE_URL" \
+                --common-merged-blocks-store-url "$MERGED_BLOCKS_STORE_URL" \
+                --data-dir /fh-data 
           resources:
             limits:
-              cpu: "4"
-              memory: "7G"
+              cpu: "2"
+              memory: "6G"
             requests:
-              cpu: "3"
+              cpu: "2"
               memory: "6G"
           volumeMounts:
             - mountPath: /persistencecore
               name: node-pv-storage
             - mountPath: /config-graph
               name: config-graph
-            - mountPath: /fh-data
-              name: firehose-pv-storage
       volumes:
-        - name: firehose-pv-storage
-          persistentVolumeClaim:
-            claimName: firehose-pv-claim
-        - name: node-pv-storage
-          persistentVolumeClaim:
-            claimName: node-pv-claim
         - name: config-graph
           configMap:
             name: config-graph
@@ -242,4 +254,4 @@ spec:
       accessModes: [ "ReadWriteOnce" ]
       resources:
         requests:
-          storage: 90Gi
+          storage: 20Gi
