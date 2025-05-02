@@ -82,10 +82,10 @@ spec:
                 --common-merged-blocks-store-url $MERGED_BLOCKS_STORE_URL
           resources:
             limits:
-              cpu: "1"
+              cpu: "0.5"
               memory: "1G"
             requests:
-              cpu: "1"
+              cpu: "0.5"
               memory: "1G"
       volumes:
         - name: config-graph

@@ -4,3 +4,4 @@ resources:
   - firehose-merger.yaml
   - firehose-relayer.yaml
   - firehose-firehose.yaml
+  # - firehose-resync.yaml

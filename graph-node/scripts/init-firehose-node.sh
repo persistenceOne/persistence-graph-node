@@ -59,7 +59,7 @@ else
     fi
 
     echo "Adding extractor options in config.toml"
-    cat << END >> $HOME_DIR/config/config.toml
+cat << END >> $HOME_DIR/config/config.toml
 #######################################################
 ###       Extractor Configuration Options     ###
 #######################################################

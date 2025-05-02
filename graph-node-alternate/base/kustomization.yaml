@@ -1,8 +1,8 @@
 resources:
   - graph-node.yaml
   - ipfs-node.yaml
-  - hasura.yaml
-  # - hasura2.yaml
+  # - hasura.yaml
+  - hasura2.yaml
   - ipfs-persistent-volume.yaml
 
 generatorOptions:

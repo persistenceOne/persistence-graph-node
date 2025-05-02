@@ -30,7 +30,7 @@ spec:
     spec:
       containers:
         - name: hasura
-          image: hasura/graphql-engine:v2.19.0
+          image: hasura/graphql-engine:v2.37.0
           ports:
             - containerPort: 8080
               protocol: TCP
@@ -46,7 +46,12 @@ spec:
               valueFrom:
                  secretKeyRef:
                   name: postgres-secret
-                  key: DEXTER_POSTGRES_HASURA_URL
+                  key: DEXTER_POSTGRES_HASURA_URL2
+            - name: DEXTER_POSTGRES_HASURA_GRAPHCORE_DB
+              valueFrom:
+                 secretKeyRef:
+                  name: postgres-secret
+                  key: DEXTER_POSTGRES_HASURA_GRAPHCORE_DB
             - name: HASURA_GRAPHQL_ENABLE_CONSOLE
               value: 'true'
             - name: HASURA_GRAPHQL_DEV_MODE

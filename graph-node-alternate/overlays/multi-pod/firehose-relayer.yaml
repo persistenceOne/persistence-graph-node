@@ -74,11 +74,11 @@ spec:
                 --common-first-streamable-block $FIRST_STREAMABLE_BLOCK
           resources:
             limits:
-              cpu: "1"
-              memory: "1G"
+              cpu: "0.25"
+              memory: "0.5G"
             requests:
-              cpu: "1"
-              memory: "1G"
+              cpu: "0.25"
+              memory: "0.5G"
       volumes:
         - name: config-graph
           configMap:

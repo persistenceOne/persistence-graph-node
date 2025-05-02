@@ -95,7 +95,7 @@ spec:
 
       containers:
         - name: graph-node
-          image: graphprotocol/graph-node:v0.34.0
+          image: graphprotocol/graph-node:v0.35.1
           imagePullPolicy: Always
           env:
             - name: FIREHOSE_HOST

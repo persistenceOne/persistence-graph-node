@@ -58,11 +58,11 @@ spec:
     spec:
       initContainers:
         - name: init-genesis
-          image: persistenceone/persistencecore:v9.2.1-fh
+          image: persistenceone/persistencecore:v12-alliance-rc0
           imagePullPolicy: Always
           env:
             - name: COINS
-              value: "100000000000000000uxprt"
+              value: "100000000000000000uxprt,100000000000000000stk/uxprt,100000000000000000stk/uatom,100000000000000000stk/udydx,100000000000000000stk/uosmo"
             - name: CHAIN_ID
               valueFrom:
                 configMapKeyRef:
