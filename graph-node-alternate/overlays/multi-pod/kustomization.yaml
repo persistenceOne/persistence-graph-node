@@ -4,4 +4,5 @@ resources:
   - firehose-merger.yaml
   - firehose-relayer.yaml
   - firehose-firehose.yaml
+  # - persistencecore-graph-node-2.yaml
   # - firehose-resync.yaml

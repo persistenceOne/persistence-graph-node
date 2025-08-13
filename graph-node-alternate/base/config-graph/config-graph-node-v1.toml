@@ -1,7 +1,7 @@
 [deployment]
 [[deployment.rule]]
 shard = "primary"
-indexers = [ "index_node_cosmos_1", "index_node_cosmos_2" ]
+indexers = [ "index_node_cosmos_1" ]
 
 [store]
 [store.primary]
@@ -16,11 +16,4 @@ shard = "primary"
 protocol = "cosmos"
 provider = [
   { label = "persistence", details = { type = "firehose", url = "http://FIREHOSE_HOST:FIREHOSE_PORT" }},
-]
-
-[chains.babylon]
-shard = "primary"
-protocol = "substreams"
-provider = [
-  { label = "babylon",  details = { type = "substreams", url = "http://159.89.170.65:10016" }},
-]
+] 

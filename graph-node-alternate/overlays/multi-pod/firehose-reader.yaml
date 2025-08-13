@@ -51,7 +51,7 @@ spec:
       terminationGracePeriodSeconds: 10
       initContainers:
         - name: wait-for-genesis
-          image: betterpersist/persistencecore:v11.20.0-fh
+          image: betterpersist/persistencecore:v12.0.1-fh
           imagePullPolicy: Always
           env:
             - name: GENESIS_NODE_DATA_RESOLUTION_METHOD
@@ -83,7 +83,7 @@ spec:
               echo "Ready to start"
               exit 0
         - name: init-firehose-node
-          image: betterpersist/persistencecore:v11.20.0-fh
+          image: betterpersist/persistencecore:v12.0.1-fh
           imagePullPolicy: Always
           env:
             - name: CHAIN_ID
@@ -178,7 +178,7 @@ spec:
               name: scripts-graph
       containers:
         - name: firehose-node
-          image: betterpersist/persistencecore:v11.20.0-fh
+          image: betterpersist/persistencecore:v12.0.1-fh
           imagePullPolicy: Always
           env:
             - name: CHAIN_ID

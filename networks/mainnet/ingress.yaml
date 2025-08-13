@@ -35,6 +35,40 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
+  name: ingress-core-mainnet-graph-new
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.org/websocket-services: "persistencecore-graph-new"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+spec:
+  tls:
+    - secretName: cloudflare-tls-persistence
+      hosts:
+        - graph-new.dex.persistence.one
+  rules:
+    - host: graph-new.dex.persistence.one
+      http:
+        paths:
+          - path: /()(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: persistencecore-graph-node-v037
+                port:
+                  number: 8000
+          - path: /ws(/|$)(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: persistencecore-graph-node-v037
+                port:
+                  number: 8001
+  ingressClassName: nginx
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
   name: ingress-core-mainnet-hasura
   annotations:
     nginx.ingress.kubernetes.io/ssl-redirect: "false"
