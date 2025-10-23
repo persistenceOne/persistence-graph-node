@@ -1,23 +1,205 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: ingress-graph-mainnet-persistence
+  name: ingress-core-mainnet-graph
   annotations:
     nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.org/websocket-services: "persistencecore-graph-node"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
 spec:
   tls:
-    - secretName: cloudflare-tls
+    - secretName: cloudflare-tls-persistence
       hosts:
-        - graph.mainnet.persistence.one
+        - graph.dex.persistence.one
   rules:
-    - host: graph.mainnet.persistence.one
+    - host: graph.dex.persistence.one
       http:
         paths:
-          - path: /
+          - path: /()(.*)
             pathType: Prefix
             backend:
               service:
                 name: persistencecore-graph-node
                 port:
                   number: 8000
+          - path: /ws(/|$)(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: persistencecore-graph-node
+                port:
+                  number: 8001
   ingressClassName: nginx
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-core-mainnet-firehose-substreams
+  annotations:
+    nginx.ingress.kubernetes.io/backend-protocol: "GRPC"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  tls:
+    - secretName: cloudflare-tls-persistence
+      hosts:
+        - substreams.core.persistence.one
+        - firehose.core.persistence.one
+  rules:
+    - host: substreams.core.persistence.one
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: persistencecore-firehose
+                port:
+                  number: 10016
+    - host: firehose.core.persistence.one
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: persistencecore-firehose
+                port:
+                  number: 10015
+  ingressClassName: nginx
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-core-mainnet-graph-new
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.org/websocket-services: "persistencecore-graph-new"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+spec:
+  tls:
+    - secretName: cloudflare-tls-persistence
+      hosts:
+        - graph-new.dex.persistence.one
+  rules:
+    - host: graph-new.dex.persistence.one
+      http:
+        paths:
+          - path: /()(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: persistencecore-graph-node-v037
+                port:
+                  number: 8000
+          - path: /ws(/|$)(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: persistencecore-graph-node-v037
+                port:
+                  number: 8001
+  ingressClassName: nginx
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-core-mainnet-hasura
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+spec:
+  tls:
+    - secretName: cloudflare-tls-persistence
+      hosts:
+        - api.dex.persistence.one
+  rules:
+    - host: api.dex.persistence.one
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: dexter-hasura
+                port:
+                  number: 8080
+  ingressClassName: nginx
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-core-mainnet-hasura-dexter-base-old
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+spec:
+  tls:
+    - secretName: cloudflare-tls
+      hosts:
+        - api.core-1.dexter.zone
+  rules:
+    - host: api.core-1.dexter.zone
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: dexter-hasura
+                port:
+                  number: 8080
+  ingressClassName: nginx
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-core-mainnet-hasura-dexter-base-old-next
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+spec:
+  tls:
+    - secretName: cloudflare-tls
+      hosts:
+        - api-next.core-1.dexter.zone
+  rules:
+    - host: api-next.core-1.dexter.zone
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: dexter-hasura
+                port:
+                  number: 8080
+  ingressClassName: nginx
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-core-mainnet-hasura-dexter-base-old-api2
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+spec:
+  tls:
+    - secretName: cloudflare-tls
+      hosts:
+        - api2.core-1.dexter.zone
+  rules:
+    - host: api2.core-1.dexter.zone
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: dexter-hasura
+                port:
+                  number: 8080
+  ingressClassName: nginx
+

@@ -1,0 +1,27 @@
+[deployment]
+[[deployment.rule]]
+shard = "primary"
+indexers = [ "index_node_cosmos_2" ]
+
+[store]
+[store.primary]
+connection = "postgresql://POSTGRES_USER:POSTGRES_PASSWORD@POSTGRES_HOST:POSTGRES_PORT/POSTGRES_DB_SUBSTREAMS"
+pool_size = 10
+
+[chains]
+ingestor = "block_ingestor_node"
+
+[chains.babylon]
+shard = "primary"
+protocol = "substreams"
+provider = [
+  { label = "substreams",  details = { type = "substreams", url = "http://159.89.170.65:10016" }},
+]
+
+[chains.persistence]
+shard = "primary"
+protocol = "substreams"
+provider = [
+  { label = "substreams", details = { type = "substreams", url = "https://substreams.core.persistence.one:443" }},
+]
+

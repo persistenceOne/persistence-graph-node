@@ -52,34 +52,44 @@ else
     sed -i 's/timeout_commit = "5s"/timeout_commit = "1s"/g' $HOME_DIR/config/config.toml
     sed -i 's/timeout_propose = "3s"/timeout_propose = "1s"/g' $HOME_DIR/config/config.toml
     sed -i 's/index_all_keys = false/index_all_keys = true/g' $HOME_DIR/config/config.toml
+    sed -i 's/prometheus = false/prometheus = true/g' $HOME_DIR/config/config.toml
 
     # replace seeds if the variable is not empty
     if [ ! -z "$SEEDS" ]; then
         sed -i "s/seeds = \"\"/seeds = \"$SEEDS\"/g" $HOME_DIR/config/config.toml
     fi
 
-    echo "Adding extractor options in config.toml"
-cat << END >> $HOME_DIR/config/config.toml
-#######################################################
-###       Extractor Configuration Options     ###
-#######################################################
-[extractor]
-enabled = true
-output_file = "stdout"
-END
+    # replace persistent_peers if the variable is not empty
+    if [ ! -z "$PERSISTENT_PEERS" ]; then
+        sed -i "s/persistent_peers = \"\"/persistent_peers = \"$PERSISTENT_PEERS\"/g" $HOME_DIR/config/config.toml
+    fi
 
     echo "Printing the whole config.toml file"
+
+    cat << END >> $HOME_DIR/config/config.toml
+        #######################################################
+        ###       Extractor Configuration Options     ###
+        #######################################################
+        [extractor]
+        enabled = true
+        output_file = "stdout"
+END
+    
     cat $HOME_DIR/config/config.toml
+
+
+    # update the app.toml pruning config to Nothing
+    # sed -i 's/pruning = "default"/pruning = "nothing"/g' $HOME_DIR/config/app.toml
+    # update the minimum-gas-prices in app.toml to 100uxprt
+    sed -i 's/minimum-gas-prices = ""/minimum-gas-prices = "100uxprt"/g' $HOME_DIR/config/app.toml
 
     echo "Setting up pruning configuration in app.toml"
     sed -i 's/pruning = "default"/pruning = "custom"/g' $HOME_DIR/config/app.toml
     sed -i 's/pruning-interval = "0"/pruning-interval = "100"/g' $HOME_DIR/config/app.toml
     sed -i 's/pruning-keep-recent = "0"/pruning-keep-recent = "10000"/g' $HOME_DIR/config/app.toml
 
-    # update the minimum-gas-prices in app.toml to 100uxprt
-    sed -i 's/minimum-gas-prices = ""/minimum-gas-prices = "100uxprt"/g' $HOME_DIR/config/app.toml
 
-    # if STATE_RESTORE_SNAPSHOT_URL is not empty url, then download and extract the snapshot
+    # if STATE_RESTORE_SNAPSHOT_URL is not empty url and wasm folder doesn't exist, then download and extract the snapshot
     if [ ! -z "$STATE_RESTORE_SNAPSHOT_URL" ]; then
         echo "=> Downloading snapshot from $STATE_RESTORE_SNAPSHOT_URL"
         FILENAME=$(basename $STATE_RESTORE_SNAPSHOT_URL)
@@ -107,18 +117,16 @@ END
                 ;;
         esac
 
-        cp $HOME_DIR/priv_validator_state_backup.json $HOME/data/priv_validator_state.json
+        mv $HOME_DIR/priv_validator_state_backup.json $HOME/data/priv_validator_state.json
         rm $HOME_DIR/priv_validator_state_backup.json
     fi
 
 fi
 # copy the firehose.yml file to the HOME_DIR because config-graph is a read-only volume
-cp /config-graph/firehose.yml $HOME_DIR/config/firehose.yml
+cp /config-graph/firehose-reader.yml $HOME_DIR/config/firehose.yml
 
 # if FIRST_STREAMABLE_BLOCK is not empty, then set the first_streamable_block in firehose.yml
 if [ ! -z "$FIRST_STREAMABLE_BLOCK" ]; then
     echo "Setting common-first-streamable-block to $FIRST_STREAMABLE_BLOCK"
-    sed -i "s/common-first-streamable-block: <first_block>/common-first-streamable-block: $FIRST_STREAMABLE_BLOCK/g" $HOME_DIR/config/firehose.yml
+    sed -i "s/common-first-streamable-block: 0/common-first-streamable-block: $FIRST_STREAMABLE_BLOCK/g" $HOME_DIR/config/firehose.yml
 fi
-
-echo "Init Complete"

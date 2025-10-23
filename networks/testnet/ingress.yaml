@@ -1,23 +1,33 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: ingress-graph-testnet-persistence
+  name: ingress-core-testnet-graph
   annotations:
     nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.org/websocket-services: "persistencecore-graph-node"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
 spec:
   tls:
-    - secretName: cloudflare-tls-graph-testnet
+    - secretName: cloudflare-tls
       hosts:
-        - graph.testnet.persistence.one
+        - graph.testnet.dexter.zone
   rules:
-    - host: graph.testnet.persistence.one
+    - host: graph.testnet.dexter.zone
       http:
         paths:
-          - path: /
+          - path: /()(.*)
             pathType: Prefix
             backend:
               service:
                 name: persistencecore-graph-node
                 port:
                   number: 8000
+          - path: /ws(/|$)(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: persistencecore-graph-node
+                port:
+                  number: 8001
   ingressClassName: nginx

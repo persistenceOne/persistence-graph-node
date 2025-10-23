@@ -1,0 +1,7 @@
+resources:
+  - ../../base/
+  - firehose-reader.yaml
+  - firehose-merger.yaml
+  - firehose-firehose.yaml
+  # - persistencecore-graph-node-2.yaml
+  # - firehose-resync.yaml
