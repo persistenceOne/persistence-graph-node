@@ -21,8 +21,8 @@ data:
   persistent_peers: ''
   first_streamable_block: '50'
   force_init: 'false'
-  one_block_store_url: 's3://sgp1.digitaloceanspaces.com/dexter-zone/devnet-v9_2/one-blocks?region=us-east-1'
-  merged_blocks_store_url: 's3://sgp1.digitaloceanspaces.com/dexter-zone/devnet-v9_2/merged-blocks?region=us-east-1'
+  one_block_store_url: 's3://sgp1.digitaloceanspaces.com/dexter-zone/persistence-new/devnet/one-blocks?region=us-east-1'
+  merged_blocks_store_url: 's3://sgp1.digitaloceanspaces.com/dexter-zone/persistence-new/devnet/merged-blocks?region=us-east-1'
 ---
 apiVersion: v1
 kind: ConfigMap

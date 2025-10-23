@@ -8,10 +8,10 @@ metadata:
 spec:
   clusterIP: None
   ports:
-    - name: firehose-reader
-      port: 9000
+    - name: reader-grpc
+      port: 10010
       protocol: TCP
-      targetPort: 9000
+      targetPort: 10010
     - name: prometheus-node
       port: 26660
       protocol: TCP
@@ -29,7 +29,7 @@ metadata:
   name: persistencecore-firehose-reader
 spec:
   serviceName: persistencecore-firehose-reader
-  replicas: 2
+  replicas: 1
   revisionHistoryLimit: 3
   selector:
     matchLabels:
@@ -49,136 +49,9 @@ spec:
         app.kubernetes.io/version: '0.1'
     spec:
       terminationGracePeriodSeconds: 10
-      initContainers:
-        - name: wait-for-genesis
-          image: betterpersist/persistencecore:v12.0.1-fh
-          imagePullPolicy: Always
-          env:
-            - name: GENESIS_NODE_DATA_RESOLUTION_METHOD
-              valueFrom:
-                configMapKeyRef:
-                  key: sync_node.resolution_method
-                  name: firehose-node-config
-            - name: GENESIS_HOST
-              valueFrom:
-                configMapKeyRef:
-                  key: sync_node.host
-                  name: firehose-node-config
-            - name: GENESIS_PORT
-              valueFrom:
-                configMapKeyRef:
-                  key: sync_node.exposer_port
-                  name: firehose-node-config
-          command:
-            - bash
-            - "-c"
-            - |
-              # Do the following if the resolution method is dynamic else skip (we assume that in static configuration peer node is already up)
-              if [ "$GENESIS_NODE_DATA_RESOLUTION_METHOD" = "DYNAMIC" ]; then
-                while [ $(curl -sw '%{http_code}' http://$GENESIS_HOST:$GENESIS_PORT/node_id -o /dev/null) -ne 200 ]; do
-                  echo "Genesis validator does not seem to be ready. Waiting for it to start..."
-                  sleep 10;
-                done
-              fi
-              echo "Ready to start"
-              exit 0
-        - name: init-firehose-node
-          image: betterpersist/persistencecore:v12.0.1-fh
-          imagePullPolicy: Always
-          env:
-            - name: CHAIN_ID
-              valueFrom:
-                configMapKeyRef:
-                  key: chain.id
-                  name: persistencecore
-            - name: HOME_DIR
-              value: /persistencecore
-            - name: GENESIS_HOST
-              valueFrom:
-                configMapKeyRef:
-                  key: sync_node.host
-                  name: firehose-node-config
-            # We support 2 types of resolution methods: (dynamic, static), if the resolution method is dynamic then we fetch the node id
-            # on the fly from the exposer app exposed service on the specified port, otherwise it is required that the node id is 
-            # specified exactly as an environment variable
-            - name: GENESIS_NODE_DATA_RESOLUTION_METHOD
-              valueFrom:
-                configMapKeyRef:
-                  key: sync_node.resolution_method
-                  name: firehose-node-config
-            - name: GENESIS_EXPOSER_PORT
-              valueFrom:
-                configMapKeyRef:
-                  key: sync_node.exposer_port
-                  name: firehose-node-config
-            # This URL is used to fetch the genesis json if the NODE_DATA_RESOLUTION_METHOD is static
-            - name: GENESIS_JSON_FETCH_URL
-              valueFrom:
-                configMapKeyRef:
-                  key: sync_node.genesis_json_fetch_url
-                  name: firehose-node-config
-            - name: GENESIS_PORT_P2P
-              valueFrom:
-                configMapKeyRef:
-                  key: sync_node.port_p2p
-                  name: firehose-node-config
-            - name: STATE_RESTORE_SNAPSHOT_URL
-              valueFrom:
-                configMapKeyRef:
-                  key: snapshot_restore_url
-                  name: firehose-node-config
-            - name: SEEDS
-              valueFrom:
-                configMapKeyRef:
-                  key: seeds
-                  name: firehose-node-config
-            - name: PERSISTENT_PEERS
-              valueFrom:
-                configMapKeyRef:
-                  key: persistent_peers
-                  name: firehose-node-config
-            - name: FIRST_STREAMABLE_BLOCK
-              valueFrom:
-                configMapKeyRef:
-                  key: first_streamable_block
-                  name: firehose-node-config
-            - name: FORCE_INIT
-              valueFrom:
-                configMapKeyRef:
-                  key: force_init
-                  name: firehose-node-config
-          command:
-            - bash
-            - "-c"
-            - |
-              bash /scripts/init-firehose-node.sh
-
-              echo "Installing firecosmos if not already installed"
-
-              # Install firecosmos if not already installed
-              if [ ! -f /persistencecore/bin/firecosmos ]; then
-                wget https://github.com/figment-networks/firehose-cosmos/releases/download/v0.6.0/firecosmos_linux_amd64 -O firecosmos
-                chmod +x firecosmos
-                mkdir -p /persistencecore/bin
-                mv firecosmos /persistencecore/bin/firecosmos
-              fi
-          resources:
-            limits:
-              cpu: "1"
-              memory: "1G"
-            requests:
-              cpu: "1"
-              memory: "1G"
-          volumeMounts:
-            - mountPath: /persistencecore
-              name: node-pv-storage
-            - mountPath: /config-graph
-              name: config-graph
-            - mountPath: /scripts
-              name: scripts-graph
       containers:
         - name: firehose-node
-          image: betterpersist/persistencecore:v12.0.1-fh
+          image: ghcr.io/persistenceone/firecore-firepersistence:0.1
           imagePullPolicy: Always
           env:
             - name: CHAIN_ID
@@ -217,35 +90,33 @@ spec:
             - bash
             - "-c"
             - |
-              # sleep infinity
-              exec /persistencecore/bin/firecosmos start reader \
-                --reader-mode node \
-                --reader-node-path /usr/bin/persistenceCore \
-                --reader-node-args "start --x-crisis-skip-assert-invariants --home /persistencecore" \
-                --reader-node-logs-filter "module=(p2p|pex|consensus|x/bank|x/wasm)" \
-                --common-first-streamable-block $FIRST_STREAMABLE_BLOCK \
+              exec firecore start reader-node \
+                --config-file= \
+                --log-format=stackdriver \
+                --log-to-file=false \
+                --data-dir=/fh-data \
+                --common-auto-max-procs \
+                --common-auto-mem-limit-percent=90 \
                 --common-one-block-store-url "$ONE_BLOCK_STORE_URL" \
                 --common-merged-blocks-store-url "$MERGED_BLOCKS_STORE_URL" \
-                --data-dir /fh-data 
+                --common-first-streamable-block $FIRST_STREAMABLE_BLOCK \
+                --reader-node-data-dir=/fh-data/oneblock \
+                --reader-node-working-dir=/fh-data/work \
+                --reader-node-readiness-max-latency=600s \
+                --reader-node-debug-firehose-logs=false \
+                --reader-node-blocks-chan-capacity=1000 \
+                --reader-node-path=firepersistence \
+                --reader-node-arguments="fetch rpc $FIRST_STREAMABLE_BLOCK --state-dir /fh-data --block-fetch-batch-size=1 --endpoints https://rpc.core.persistence.one:443 --max-block-fetch-duration 10s" \
+                --advertise-chain-name "$CHAIN_ID"
           resources:
             limits:
               cpu: "1"
-              memory: "6G"
+              memory: "2G"
             requests:
               cpu: "0.5"
-              memory: "4G"
-          volumeMounts:
-            - mountPath: /persistencecore
-              name: node-pv-storage
-            - mountPath: /config-graph
-              name: config-graph
-      volumes:
-        - name: config-graph
-          configMap:
-            name: config-graph
-        - name: scripts-graph
-          configMap:
-            name: scripts-graph
+              memory: "1G"
+          # No volume mounts needed when not restoring snapshots
+      # No additional volumes required
   volumeClaimTemplates:
   - metadata:
       name: node-pv-storage

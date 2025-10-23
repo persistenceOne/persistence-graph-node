@@ -18,3 +18,10 @@ provider = [
   { label = "substreams",  details = { type = "substreams", url = "http://159.89.170.65:10016" }},
 ]
 
+[chains.persistence]
+shard = "primary"
+protocol = "substreams"
+provider = [
+  { label = "substreams", details = { type = "substreams", url = "https://substreams.core.persistence.one:443" }},
+]
+

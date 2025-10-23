@@ -8,6 +8,10 @@ metadata:
 spec:
   clusterIP: None
   ports:
+    - name: merger-grpc
+      port: 10012
+      protocol: TCP
+      targetPort: 10012
     - name: prometheus-firehose
       port: 9102
       protocol: TCP
@@ -42,7 +46,7 @@ spec:
       terminationGracePeriodSeconds: 10
       containers:
         - name: firehose-merger-node
-          image: betterpersist/firecosmos:0.6.0
+          image: ghcr.io/persistenceone/firecore-firepersistence:0.1
           imagePullPolicy: Always
           env:
             - name: FIRST_STREAMABLE_BLOCK
@@ -75,8 +79,14 @@ spec:
             - "-c"
             - |
               export NAMESPACE=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
-              exec firecosmos start merger \
-                --common-live-blocks-addr persistencecore-firehose-reader.$NAMESPACE.svc.cluster.local:9010 \
+              exec firecore start merger \
+                --config-file= \
+                --log-format=stackdriver \
+                --log-to-file=false \
+                --data-dir=/fh-data \
+                --common-auto-max-procs \
+                --common-auto-mem-limit-percent=90 \
+                --common-live-blocks-addr persistencecore-firehose-reader.$NAMESPACE.svc.cluster.local:10010 \
                 --common-first-streamable-block $FIRST_STREAMABLE_BLOCK \
                 --common-one-block-store-url $ONE_BLOCK_STORE_URL \
                 --common-merged-blocks-store-url $MERGED_BLOCKS_STORE_URL

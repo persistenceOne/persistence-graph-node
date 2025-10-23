@@ -8,10 +8,10 @@ metadata:
 spec:
   clusterIP: None
   ports:
-    - name: firehose-relayer
-      port: 9010
+    - name: relayer-grpc
+      port: 10014
       protocol: TCP
-      targetPort: 9010
+      targetPort: 10014
     - name: prometheus-firehose
       port: 9102
       protocol: TCP
@@ -47,7 +47,7 @@ spec:
       terminationGracePeriodSeconds: 10
       containers:
         - name: firehose-relayer-node
-          image: betterpersist/firecosmos:0.6.0
+          image: ghcr.io/persistenceone/firecore-firepersistence:0.1
           imagePullPolicy: Always
           env:
             - name: FIRST_STREAMABLE_BLOCK
@@ -69,8 +69,15 @@ spec:
             - bash
             - "-c"
             - |
-              exec firecosmos start relayer \
-                --relayer-source persistencecore-firehose-reader.mainnet.svc.cluster.local:9000 \
+              export NAMESPACE=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
+              exec firecore start relayer \
+                --config-file= \
+                --log-format=stackdriver \
+                --log-to-file=false \
+                --data-dir=/fh-data \
+                --common-auto-max-procs \
+                --common-auto-mem-limit-percent=90 \
+                --relayer-source persistencecore-firehose-reader.$NAMESPACE.svc.cluster.local:10010 \
                 --common-first-streamable-block $FIRST_STREAMABLE_BLOCK
           resources:
             limits:

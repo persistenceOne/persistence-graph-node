@@ -285,7 +285,7 @@ spec:
                   name: postgres-secret
                   key: POSTGRES_DB_SUBSTREAMS
             - name: GRAPH_NODE_FIREHOSE_DISABLE_EXTENDED_BLOCKS_FOR_CHAINS
-              value: "babylon"
+              value: "babylon,persistence"
           command:
             - bash
             - "-c"

@@ -9,9 +9,17 @@ spec:
   clusterIP: None
   ports:
     - name: firehose
-      port: 9030
+      port: 10015
       protocol: TCP
-      targetPort: 9030
+      targetPort: 10015
+    - name: substreams-tier1
+      port: 10016
+      protocol: TCP
+      targetPort: 10016
+    - name: substreams-tier2
+      port: 10017
+      protocol: TCP
+      targetPort: 10017
     - name: prometheus-firehose
       port: 9102
       protocol: TCP
@@ -47,7 +55,7 @@ spec:
       terminationGracePeriodSeconds: 10
       containers:
         - name: firehose-node
-          image: betterpersist/firecosmos:0.6.0
+          image: ghcr.io/persistenceone/firecore-firepersistence:0.1
           imagePullPolicy: Always
           env:
             - name: FIRST_STREAMABLE_BLOCK
@@ -75,24 +83,35 @@ spec:
                 configMapKeyRef:
                   key: merged_blocks_store_url
                   name: firehose-node-config
+            - name: CHAIN_ID
+              valueFrom:
+                configMapKeyRef:
+                  key: chain.id
+                  name: persistencecore
           command:
             - bash
             - "-c"
             - |
               export NAMESPACE=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
-              # sleep infinity
-              exec firecosmos start firehose \
-                --common-live-blocks-addr persistencecore-firehose-relayer.$NAMESPACE.svc.cluster.local:9010 \
+              exec firecore start relayer firehose substreams-tier1 substreams-tier2 \
+                --config-file= \
+                --log-format=stackdriver \
+                --log-to-file=false \
+                --data-dir=/fh-data \
+                --common-auto-max-procs \
+                --common-auto-mem-limit-percent=90 \
+                --common-one-block-store-url "$ONE_BLOCK_STORE_URL" \
+                --common-merged-blocks-store-url "$MERGED_BLOCKS_STORE_URL" \
                 --common-first-streamable-block $FIRST_STREAMABLE_BLOCK \
-                --common-one-block-store-url $ONE_BLOCK_STORE_URL \
-                --common-merged-blocks-store-url $MERGED_BLOCKS_STORE_URL
+                --common-live-blocks-addr persistencecore-firehose-reader.$NAMESPACE.svc.cluster.local:10010 \
+                --advertise-chain-name "$CHAIN_ID"
           resources:
             limits:
-              cpu: "0.5"
-              memory: "0.5G"
+              cpu: "2"
+              memory: "2G"
             requests:
-              cpu: "0.5"
-              memory: "0.5G"
+              cpu: "1"
+              memory: "2G"
       volumes:
         - name: config-graph
           configMap:
